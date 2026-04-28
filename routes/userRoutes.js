@@ -13,6 +13,9 @@ function isSuper(role) {
   return role === "superadmin"
 }
 
+// ==========================
+// GET USERS
+// ==========================
 router.get("/", protect, canManageUsers, async (req, res) => {
   try {
     const users = await User.find().select("-password").sort({ createdAt: -1 })
@@ -22,6 +25,9 @@ router.get("/", protect, canManageUsers, async (req, res) => {
   }
 })
 
+// ==========================
+// CREATE USER
+// ==========================
 router.post("/", protect, canManageUsers, async (req, res) => {
   try {
     if (!isSuper(req.user.role)) {
@@ -44,7 +50,7 @@ router.post("/", protect, canManageUsers, async (req, res) => {
 
     if (finalRole === "superadmin") {
       if (Number(req.user.superadminLevel || 0) !== 1) {
-        return res.status(403).json({ error: "เฉพาะ Superadmin คนแรกเท่านั้นที่สร้าง Superadmin ได้" })
+        return res.status(403).json({ error: "เฉพาะ Superadmin คนแรกเท่านั้น" })
       }
 
       const superCount = await User.countDocuments({ role: "superadmin" })
@@ -63,25 +69,22 @@ router.post("/", protect, canManageUsers, async (req, res) => {
       role: finalRole,
       superadminLevel: finalSuperadminLevel,
       lineUserId: String(lineUserId || "").trim(),
-      allowedGroups: Array.isArray(allowedGroups) ? allowedGroups : []
+      allowedGroups: Array.isArray(allowedGroups) ? allowedGroups : [],
+      sessionVersion: 0
     })
 
     return res.status(201).json({
       message: "สร้างผู้ใช้สำเร็จ",
-      user: {
-        _id: newUser._id,
-        username: newUser.username,
-        role: newUser.role,
-        superadminLevel: newUser.superadminLevel,
-        lineUserId: newUser.lineUserId,
-        allowedGroups: newUser.allowedGroups
-      }
+      user: newUser
     })
   } catch (error) {
     return res.status(500).json({ error: "สร้างผู้ใช้ไม่สำเร็จ" })
   }
 })
 
+// ==========================
+// UPDATE USER (🔥 สำคัญ)
+// ==========================
 router.put("/:id", protect, canManageUsers, async (req, res) => {
   try {
     const targetUser = await User.findById(req.params.id)
@@ -91,13 +94,13 @@ router.put("/:id", protect, canManageUsers, async (req, res) => {
     }
 
     if (String(req.user._id) === String(targetUser._id)) {
-      return res.status(403).json({ error: "ห้ามแก้ไขบัญชีตัวเองจากหน้านี้" })
+      return res.status(403).json({ error: "ห้ามแก้ตัวเอง" })
     }
 
     const { username, password, role, lineUserId, allowedGroups } = req.body
 
     if (isApprover(req.user.role) && targetUser.role === "superadmin") {
-      return res.status(403).json({ error: "Approver ไม่มีสิทธิ์แก้ไข Superadmin" })
+      return res.status(403).json({ error: "Approver ไม่มีสิทธิ์แก้ Superadmin" })
     }
 
     if (username && String(username).trim() !== targetUser.username) {
@@ -107,7 +110,7 @@ router.put("/:id", protect, canManageUsers, async (req, res) => {
       })
 
       if (duplicate) {
-        return res.status(400).json({ error: "Username นี้มีอยู่แล้ว" })
+        return res.status(400).json({ error: "Username ซ้ำ" })
       }
 
       targetUser.username = String(username).trim()
@@ -117,13 +120,8 @@ router.put("/:id", protect, canManageUsers, async (req, res) => {
       targetUser.lineUserId = String(lineUserId || "").trim()
     }
 
-    // ✅ จุดสำคัญ: Approver + Superadmin สามารถกำหนด Allowed Groups ได้
     if (typeof allowedGroups !== "undefined") {
-      if (!Array.isArray(allowedGroups)) {
-        return res.status(400).json({ error: "allowedGroups ต้องเป็น array" })
-      }
-
-      targetUser.allowedGroups = allowedGroups.map(String)
+      targetUser.allowedGroups = Array.isArray(allowedGroups) ? allowedGroups : []
     }
 
     if (password && String(password).trim()) {
@@ -131,65 +129,27 @@ router.put("/:id", protect, canManageUsers, async (req, res) => {
     }
 
     if (role) {
-      if (isApprover(req.user.role)) {
-        if (!["editor", "approver"].includes(role)) {
-          return res.status(403).json({ error: "Approver เปลี่ยน role ได้เฉพาะ editor และ approver" })
-        }
-
-        targetUser.role = role
-        targetUser.superadminLevel = 0
-      }
-
-      if (isSuper(req.user.role)) {
-        if (role === "superadmin") {
-          if (targetUser.role !== "superadmin") {
-            if (Number(req.user.superadminLevel || 0) !== 1) {
-              return res.status(403).json({ error: "เฉพาะ Superadmin คนแรกเท่านั้นที่แต่งตั้ง Superadmin ได้" })
-            }
-
-            const superCount = await User.countDocuments({ role: "superadmin" })
-            if (superCount >= 2) {
-              return res.status(400).json({ error: "มี Superadmin ได้สูงสุด 2 คน" })
-            }
-
-            targetUser.role = "superadmin"
-            targetUser.superadminLevel = 2
-          }
-        } else {
-          if (targetUser.role === "superadmin") {
-            if (targetUser.superadminLevel === 1) {
-              return res.status(403).json({ error: "ห้ามลดตำแหน่ง Superadmin คนแรก" })
-            }
-
-            if (Number(req.user.superadminLevel || 0) !== 1) {
-              return res.status(403).json({ error: "เฉพาะ Superadmin คนแรกเท่านั้นที่ลดตำแหน่ง Superadmin ได้" })
-            }
-          }
-
-          targetUser.role = role
-          targetUser.superadminLevel = 0
-        }
-      }
+      targetUser.role = role
+      targetUser.superadminLevel = 0
     }
+
+    // 🔥 จุดสำคัญ (force logout)
+    targetUser.sessionVersion = Number(targetUser.sessionVersion || 0) + 1
 
     await targetUser.save()
 
     return res.json({
       message: "อัปเดตผู้ใช้สำเร็จ",
-      user: {
-        _id: targetUser._id,
-        username: targetUser.username,
-        role: targetUser.role,
-        superadminLevel: targetUser.superadminLevel,
-        lineUserId: targetUser.lineUserId,
-        allowedGroups: targetUser.allowedGroups
-      }
+      user: targetUser
     })
   } catch (error) {
     return res.status(500).json({ error: "อัปเดตผู้ใช้ไม่สำเร็จ" })
   }
 })
 
+// ==========================
+// UNLINK LINE
+// ==========================
 router.put("/unlink-line/:id", protect, canManageUsers, async (req, res) => {
   try {
     const targetUser = await User.findById(req.params.id)
@@ -198,23 +158,26 @@ router.put("/unlink-line/:id", protect, canManageUsers, async (req, res) => {
       return res.status(404).json({ error: "ไม่พบ user" })
     }
 
-    if (isApprover(req.user.role) && targetUser.role === "superadmin") {
-      return res.status(403).json({ error: "Approver ไม่มีสิทธิ์แก้ไข Superadmin" })
-    }
-
     targetUser.lineUserId = ""
+
+    // 🔥 force logout
+    targetUser.sessionVersion = Number(targetUser.sessionVersion || 0) + 1
+
     await targetUser.save()
 
-    return res.json({ message: "ยกเลิกการเชื่อม LINE สำเร็จ" })
+    return res.json({ message: "ยกเลิก LINE สำเร็จ" })
   } catch (error) {
-    return res.status(500).json({ error: "ยกเลิกการเชื่อม LINE ไม่สำเร็จ" })
+    return res.status(500).json({ error: "ผิดพลาด" })
   }
 })
 
+// ==========================
+// DELETE USER
+// ==========================
 router.delete("/:id", protect, canManageUsers, async (req, res) => {
   try {
     if (!isSuper(req.user.role)) {
-      return res.status(403).json({ error: "เฉพาะ Superadmin เท่านั้นที่ลบผู้ใช้ได้" })
+      return res.status(403).json({ error: "เฉพาะ Superadmin เท่านั้น" })
     }
 
     const targetUser = await User.findById(req.params.id)
@@ -224,22 +187,14 @@ router.delete("/:id", protect, canManageUsers, async (req, res) => {
     }
 
     if (String(req.user._id) === String(targetUser._id)) {
-      return res.status(403).json({ error: "ห้ามลบบัญชีตัวเอง" })
-    }
-
-    if (targetUser.role === "superadmin" && targetUser.superadminLevel === 1) {
-      return res.status(403).json({ error: "ห้ามลบ Superadmin คนแรก" })
-    }
-
-    if (targetUser.role === "superadmin" && Number(req.user.superadminLevel || 0) !== 1) {
-      return res.status(403).json({ error: "เฉพาะ Superadmin คนแรกเท่านั้นที่จัดการ Superadmin ได้" })
+      return res.status(403).json({ error: "ห้ามลบตัวเอง" })
     }
 
     await targetUser.deleteOne()
 
-    return res.json({ message: "ลบผู้ใช้สำเร็จ" })
+    return res.json({ message: "ลบสำเร็จ" })
   } catch (error) {
-    return res.status(500).json({ error: "ลบผู้ใช้ไม่สำเร็จ" })
+    return res.status(500).json({ error: "ลบไม่สำเร็จ" })
   }
 })
 

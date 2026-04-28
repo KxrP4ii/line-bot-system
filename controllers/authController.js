@@ -9,7 +9,8 @@ function signToken(user) {
       id: user._id,
       username: user.username,
       role: user.role,
-      superadminLevel: Number(user.superadminLevel || 0)
+      superadminLevel: Number(user.superadminLevel || 0),
+      sessionVersion: Number(user.sessionVersion || 0)
     },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
