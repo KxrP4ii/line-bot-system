@@ -4,17 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <style>
     :root{
       --bg:#081026;
-      --bg-2:#0f172a;
-      --card:#0f172f;
-      --surface:#15243f;
-      --border:#2a3a5a;
       --text:#f8fafc;
       --muted:#94a3b8;
       --accent:#38bdf8;
@@ -22,9 +15,7 @@
       --radius:24px;
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    *{ box-sizing:border-box; }
 
     body{
       min-height:100vh;
@@ -50,7 +41,7 @@
         radial-gradient(circle at 20% 20%, rgba(56,189,248,.18), transparent 22%),
         linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px),
         linear-gradient(0deg, rgba(255,255,255,.04) 1px, transparent 1px);
-      background-size: 160px 160px, 40px 40px, 40px 40px;
+      background-size:160px 160px, 40px 40px, 40px 40px;
       pointer-events:none;
       opacity:.35;
     }
@@ -62,14 +53,13 @@
       z-index:-1;
       pointer-events:none;
       opacity:.24;
-      animation: scanLine 6s linear infinite;
+      animation:scanLine 6s linear infinite;
       background-image:
         repeating-linear-gradient(180deg, rgba(255,255,255,.00) 0, rgba(255,255,255,.05) 1px, rgba(255,255,255,.00) 2px),
-        radial-gradient(circle at 50% 12%, rgba(56,189,248,.12), transparent 18%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 520'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0%25' stop-color='rgba(56,189,248,0.18)'/%3E%3Cstop offset='100%25' stop-color='rgba(124,58,237,0.12)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M260 60c-68 0-123 55-123 123v124c0 68 55 123 123 123s123-55 123-123V183c0-68-55-123-123-123z' fill='url(%23g)' opacity='0.25'/%3E%3Crect x='175' y='180' width='170' height='170' rx='30' fill='rgba(255,255,255,0.04)' stroke='rgba(56,189,248,0.18)' stroke-width='5'/%3E%3Ccircle cx='260' cy='240' r='22' fill='rgba(56,189,248,0.6)'/%3E%3Cpath d='M220 310h80' stroke='rgba(255,255,255,0.4)' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M220 340h80' stroke='rgba(255,255,255,0.25)' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M240 385v30 M280 385v30' stroke='rgba(56,189,248,0.3)' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E");
+        radial-gradient(circle at 50% 12%, rgba(56,189,248,.12), transparent 18%);
       background-repeat:no-repeat;
-      background-position: center 18%;
-      background-size: 520px 520px;
+      background-position:center 18%;
+      background-size:520px 520px;
     }
 
     .login-card{
@@ -82,9 +72,9 @@
       box-shadow:var(--shadow);
       padding:32px;
       overflow:hidden;
-      background-image:radial-gradient(circle at top left, rgba(56,189,248,.08), transparent 25%),
+      background-image:
+        radial-gradient(circle at top left, rgba(56,189,248,.08), transparent 25%),
         radial-gradient(circle at bottom right, rgba(124,58,237,.08), transparent 24%);
-      border-image:linear-gradient(135deg,#38bdf8,#7c3aed) 1;
     }
 
     .login-card::before,
@@ -92,8 +82,9 @@
       content:"";
       position:absolute;
       border-radius:50%;
-      filter:blur(40px);
+      filter:blur(36px);
       opacity:.55;
+      pointer-events:none;
     }
 
     .login-card::before{
@@ -111,11 +102,6 @@
       left:-30px;
       background:rgba(99,102,241,.18);
       opacity:.45;
-    }
-
-    .login-card::before,
-    .login-card::after{
-      filter:blur(36px);
     }
 
     .login-head{
@@ -138,7 +124,7 @@
       color:#fff;
       font-size:30px;
       box-shadow:0 18px 36px rgba(56,189,248,.24);
-      animation: pulseGlow 3s ease-in-out infinite;
+      animation:pulseGlow 3s ease-in-out infinite;
     }
 
     .brand{
@@ -158,23 +144,6 @@
       letter-spacing:.04em;
     }
 
-    .status-strip{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      margin-top:14px;
-      padding:10px 14px;
-      border-radius:999px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(56,189,248,.16);
-      color:#a5f3fc;
-      font-size:11px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
-    }
-
-
     @keyframes pulseGlow{
       0%,100%{ transform:scale(1); box-shadow:0 18px 36px rgba(56,189,248,.24); }
       50%{ transform:scale(1.03); box-shadow:0 28px 48px rgba(56,189,248,.32); }
@@ -192,9 +161,7 @@
       letter-spacing:.02em;
     }
 
-    .input-field{
-      margin-top:18px;
-    }
+    .input-field{ margin-top:18px; }
 
     .form-control{
       position:relative;
@@ -207,9 +174,8 @@
       color:#ffffff !important;
       font-weight:600;
       transition:.25s ease;
-      box-shadow: inset 0 10px 30px rgba(4,8,18,.45);
+      box-shadow:inset 0 10px 30px rgba(4,8,18,.45);
       caret-color:#38bdf8;
-      text-shadow:0 0 1px rgba(255,255,255,.85);
     }
 
     .form-control::placeholder{
@@ -222,11 +188,6 @@
       box-shadow:0 0 0 5px rgba(56,189,248,.18);
       outline:none;
       background:rgba(8,14,32,.98);
-    }
-
-    .form-control::selection{
-      background:rgba(56,189,248,.35);
-      color:#ffffff;
     }
 
     .btn{
@@ -249,8 +210,41 @@
       background:linear-gradient(135deg,#22d3ee,#7c3aed);
     }
 
-    .btn-primary:active{
-      transform:translateY(0);
+    .btn-register{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(56,189,248,.35);
+      color:#e0f2fe;
+      text-decoration:none;
+      display:block;
+      text-align:center;
+    }
+
+    .btn-register:hover{
+      background:rgba(56,189,248,.14);
+      color:#ffffff;
+      transform:translateY(-1px);
+    }
+
+    .register-status{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(148,163,184,.16);
+      color:#cbd5e1;
+      font-size:13px;
+      line-height:1.5;
+      text-align:center;
+    }
+
+    .register-open{
+      border-color:rgba(52,211,153,.35);
+      color:#bbf7d0;
+    }
+
+    .register-closed{
+      border-color:rgba(248,113,113,.35);
+      color:#fecaca;
     }
 
     .alert{
@@ -259,82 +253,20 @@
       background:rgba(248,113,113,.12);
       color:#fee2e2;
     }
-
-    .status-bar{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:22px;
-      padding:10px 14px;
-      border-radius:14px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(56,189,248,.16);
-      color:#a5f3fc;
-      font-size:12px;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
-    }
-
-    .status-dot{
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:#34d399;
-      box-shadow:0 0 0 4px rgba(52,211,153,.16);
-      animation: pulseDot 1.8s infinite ease-in-out;
-    }
-
-    @keyframes pulseDot{
-      0%,100%{ transform:scale(1); opacity:1; }
-      50%{ transform:scale(1.3); opacity:.7; }
-    }
-
-    .footer-note{
-      text-align:center;
-      margin-top:24px;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.6;
-    }
-
-    .form-group{
-      position:relative;
-    }
-
-    .form-group::after{
-      content:"";
-      position:absolute;
-      left:0;
-      bottom:0;
-      width:100%;
-      height:1px;
-      background:linear-gradient(90deg, rgba(56,189,248,.16), transparent 50%, rgba(99,102,241,.16));
-    }
-
-    .meta-note{
-      margin-top:18px;
-      padding:14px 16px;
-      border-radius:16px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(148,163,184,.12);
-      color:#cbd5e1;
-      font-size:13px;
-      line-height:1.6;
-    }
   </style>
 </head>
 <body>
   <div class="login-card">
     <div class="login-head">
-        <div class="robot-icon">🤖</div>
-        <div>
-          <div class="brand">เข้าสู่ระบบ</div>
-          <div class="subtitle">ยินดีต้อนรับสู่ Workflow AI Command Center</div>
-        </div>
+      <div class="robot-icon">🤖</div>
+      <div>
+        <div class="brand">เข้าสู่ระบบ</div>
+        <div class="subtitle">ยินดีต้อนรับสู่ Workflow AI Command Center</div>
       </div>
+    </div>
 
-      <div id="loginError" class="alert alert-danger d-none"></div>
+    <div id="loginError" class="alert alert-danger d-none"></div>
+
     <form id="loginForm">
       <div class="mb-3 input-field">
         <label class="form-label" for="username">Username</label>
@@ -351,6 +283,11 @@
       </div>
     </form>
 
+    <div id="registerBox" class="d-grid mt-3 d-none">
+      <a href="/register" class="btn btn-register">สมัครสมาชิก</a>
+    </div>
+
+    <div id="registerStatus" class="register-status d-none"></div>
   </div>
 
   <script>
@@ -379,10 +316,47 @@
       }
     }
 
+    async function loadRegisterStatus() {
+      const registerBox = document.getElementById("registerBox")
+      const registerStatus = document.getElementById("registerStatus")
+
+      try {
+        const res = await fetch("/api/settings/register")
+        const data = await res.json()
+
+        registerStatus.classList.remove("d-none", "register-open", "register-closed")
+
+        if (!res.ok) {
+          registerBox.classList.add("d-none")
+          registerStatus.classList.add("register-closed")
+          registerStatus.textContent = "ไม่สามารถตรวจสอบสถานะการสมัครได้"
+          return
+        }
+
+        if (data.registerEnabled === true) {
+          registerBox.classList.remove("d-none")
+          registerStatus.classList.add("register-open")
+          registerStatus.textContent = "ระบบเปิดรับสมัครสมาชิกอยู่"
+        } else {
+          registerBox.classList.add("d-none")
+          registerStatus.classList.add("register-closed")
+          registerStatus.textContent = "ระบบปิดรับสมัครสมาชิกชั่วคราว"
+        }
+      } catch (error) {
+        registerBox.classList.add("d-none")
+        registerStatus.classList.remove("d-none", "register-open")
+        registerStatus.classList.add("register-closed")
+        registerStatus.textContent = "ไม่สามารถเชื่อมต่อระบบเพื่อตรวจสอบสถานะการสมัครได้"
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       if (hasValidSession()) {
         window.location.replace("/dashboard")
+        return
       }
+
+      loadRegisterStatus()
     })
 
     document.getElementById("loginForm").addEventListener("submit", async (e) => {

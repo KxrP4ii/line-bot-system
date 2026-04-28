@@ -44,6 +44,7 @@ const analyticsRoutes = require("./routes/analyticsRoutes")
 const groupRoutes = require("./routes/groupRoutes")
 const spamRoutes = require("./routes/spamRoutes")
 const supportRoutes = require("./routes/supportRoutes")
+const settingRoutes = require("./routes/settingRoutes")
 
 const app = express()
 const server = http.createServer(app)
@@ -862,6 +863,7 @@ app.use("/api/analytics", analyticsRoutes)
 app.use("/api/groups", groupRoutes)
 app.use("/api/spam", spamRoutes)
 app.use("/api/support", supportRoutes)
+app.use("/api/settings", settingRoutes)
 
 app.get("/", (req, res) => {
   res.redirect("/dashboard")

@@ -374,6 +374,59 @@
       color:var(--text);
     }
 
+
+    .register-toggle-card{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #dbe4f0;
+      background:#fff;
+      box-shadow:0 6px 18px rgba(15,23,42,.06);
+    }
+
+    .register-toggle-label{
+      font-size:12px;
+      font-weight:700;
+      color:#475467;
+      white-space:nowrap;
+    }
+
+    .register-toggle-btn{
+      min-width:126px;
+      border-radius:999px;
+      font-weight:800;
+      border:none;
+      padding:7px 12px;
+      transition:.15s ease;
+    }
+
+    .register-toggle-btn.is-on{
+      color:#0f5132;
+      background:#d1fae5;
+      border:1px solid #86efac;
+    }
+
+    .register-toggle-btn.is-off{
+      color:#842029;
+      background:#fee2e2;
+      border:1px solid #fca5a5;
+    }
+
+    .register-toggle-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      display:inline-block;
+      margin-right:6px;
+      background:#16a34a;
+    }
+
+    .register-toggle-btn.is-off .register-toggle-dot{
+      background:#dc2626;
+    }
+
     @media (max-width:991px){
       .sidebar{
         min-height:auto;
@@ -427,6 +480,13 @@
                   Realtime Sync
                 </span>
                 <span id="userInfo" class="badge text-bg-dark"></span>
+
+                <div id="registerToggleBox" class="register-toggle-card d-none">
+                  <span class="register-toggle-label">สมัครสมาชิก</span>
+                  <button id="registerToggleBtn" class="register-toggle-btn is-on" type="button" onclick="toggleRegisterStatus()">
+                    <span class="register-toggle-dot"></span>เปิดรับสมัคร
+                  </button>
+                </div>
                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#keywordFormModal">
                   + เพิ่มข้อมูล
                 </button>
@@ -844,6 +904,7 @@
 
     const isEditor = user.role === "editor"
     const isAdmin = ["approver", "superadmin"].includes(user.role)
+    let registerEnabled = true
 
     document.getElementById("userInfo").textContent = `${user.username || ""} (${user.role || ""})`
 
@@ -855,6 +916,99 @@
 
       const cleanupSection = document.getElementById("cleanupSection")
       if (cleanupSection) cleanupSection.style.display = "none"
+    }
+
+
+    async function loadRegisterStatus() {
+      if (!isAdmin) return
+
+      const box = document.getElementById("registerToggleBox")
+      if (box) box.classList.remove("d-none")
+
+      try {
+        const res = await fetch("/api/settings/register", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        if (res.status === 401) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          window.location.replace("/login")
+          return
+        }
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "โหลดสถานะสมัครสมาชิกไม่สำเร็จ", "error")
+          return
+        }
+
+        registerEnabled = data.registerEnabled === true
+        renderRegisterToggle()
+      } catch (error) {
+        showToast("โหลดสถานะสมัครสมาชิกไม่สำเร็จ", "error")
+      }
+    }
+
+    function renderRegisterToggle() {
+      const btn = document.getElementById("registerToggleBtn")
+      if (!btn) return
+
+      btn.classList.remove("is-on", "is-off")
+
+      if (registerEnabled) {
+        btn.classList.add("is-on")
+        btn.innerHTML = `<span class="register-toggle-dot"></span>เปิดรับสมัคร`
+        btn.title = "ตอนนี้หน้า Login จะแสดงปุ่มสมัครสมาชิก"
+      } else {
+        btn.classList.add("is-off")
+        btn.innerHTML = `<span class="register-toggle-dot"></span>ปิดรับสมัคร`
+        btn.title = "ตอนนี้หน้า Login จะซ่อนปุ่มสมัครสมาชิก"
+      }
+    }
+
+    async function toggleRegisterStatus() {
+      if (!isAdmin) return
+
+      const btn = document.getElementById("registerToggleBtn")
+      const nextStatus = !registerEnabled
+
+      try {
+        if (btn) {
+          btn.disabled = true
+          btn.textContent = "กำลังบันทึก..."
+        }
+
+        const res = await fetch("/api/settings/register", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            registerEnabled: nextStatus
+          })
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "อัปเดตสถานะสมัครสมาชิกไม่สำเร็จ", "error")
+          renderRegisterToggle()
+          return
+        }
+
+        registerEnabled = data.registerEnabled === true
+        renderRegisterToggle()
+        showToast(registerEnabled ? "เปิดรับสมัครสมาชิกแล้ว" : "ปิดรับสมัครสมาชิกแล้ว")
+      } catch (error) {
+        showToast("อัปเดตสถานะสมัครสมาชิกไม่สำเร็จ", "error")
+      } finally {
+        if (btn) btn.disabled = false
+      }
     }
 
     function logout() {
@@ -1506,71 +1660,62 @@
     }
   </script>
 
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    async function initDashboardPage() {
-      try {
-        await loadKeywords()
+    const socket = io()
 
+    socket.on("connect", () => {
+      const syncStatus = document.getElementById("syncStatus")
+      syncStatus.innerHTML = `<span class="sync-dot"></span> Realtime Sync`
+    })
+
+    socket.on("disconnect", () => {
+      const syncStatus = document.getElementById("syncStatus")
+      syncStatus.innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
+    })
+
+    socket.on("dashboard:refresh", async () => {
+      if (isRealtimeLoading) return
+      isRealtimeLoading = true
+
+      try {
+        await loadKeywords(true)
         if (isAdmin) {
           await scanCleanup()
+          await loadRegisterStatus()
         }
-      } catch (error) {
-        console.error("init dashboard error:", error)
+      } finally {
+        setTimeout(() => {
+          isRealtimeLoading = false
+        }, 600)
       }
-    }
+    })
 
-    initDashboardPage()
-
-    if (typeof io !== "undefined") {
-      const socket = io()
-
-      socket.on("connect", () => {
-        const syncStatus = document.getElementById("syncStatus")
-        if (syncStatus) {
-          syncStatus.innerHTML = `<span class="sync-dot"></span> Realtime Sync`
-        }
-      })
-
-      socket.on("disconnect", () => {
-        const syncStatus = document.getElementById("syncStatus")
-        if (syncStatus) {
-          syncStatus.innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
-        }
-      })
-
-      socket.on("dashboard:refresh", async () => {
-        if (isRealtimeLoading) return
-        isRealtimeLoading = true
-
-        try {
-          await loadKeywords(true)
-          if (isAdmin) {
-            await scanCleanup()
-          }
-        } finally {
-          setTimeout(() => {
-            isRealtimeLoading = false
-          }, 600)
-        }
-      })
-    } else {
-      console.warn("Socket.IO ยังไม่พร้อมใช้งาน แต่ Dashboard จะโหลดข้อมูลปกติ")
-      const syncStatus = document.getElementById("syncStatus")
-      if (syncStatus) {
-        syncStatus.innerHTML = `<span class="sync-dot" style="background:#f59e0b;"></span> Sync Offline`
+    socket.on("settings:refresh", async (payload) => {
+      if (payload && Object.prototype.hasOwnProperty.call(payload, "registerEnabled")) {
+        registerEnabled = payload.registerEnabled === true
+        renderRegisterToggle()
+      } else {
+        await loadRegisterStatus()
       }
-    }
-  </script>
+    })
 
-  <script src="/js/sidebarPolicy.js"></script>
-  <script>
-    if (typeof initSidebarPolicy === "function") {
-      initSidebarPolicy("dashboard")
+    socket.on("register-toggle", async (payload) => {
+      registerEnabled = payload?.registerEnabled === true
+      renderRegisterToggle()
+    })
+
+    loadKeywords()
+    if (isAdmin) {
+      scanCleanup()
+      loadRegisterStatus()
     }
-  </script>
+
+        </script>
+      <script src="/js/sidebarPolicy.js"></script>
+      <script>
+        initSidebarPolicy("dashboard")
+      </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
