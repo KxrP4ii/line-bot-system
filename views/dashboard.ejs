@@ -1506,46 +1506,71 @@
     }
   </script>
 
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io()
-
-    socket.on("connect", () => {
-      const syncStatus = document.getElementById("syncStatus")
-      syncStatus.innerHTML = `<span class="sync-dot"></span> Realtime Sync`
-    })
-
-    socket.on("disconnect", () => {
-      const syncStatus = document.getElementById("syncStatus")
-      syncStatus.innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
-    })
-
-    socket.on("dashboard:refresh", async () => {
-      if (isRealtimeLoading) return
-      isRealtimeLoading = true
-
+    async function initDashboardPage() {
       try {
-        await loadKeywords(true)
+        await loadKeywords()
+
         if (isAdmin) {
           await scanCleanup()
         }
-      } finally {
-        setTimeout(() => {
-          isRealtimeLoading = false
-        }, 600)
+      } catch (error) {
+        console.error("init dashboard error:", error)
       }
-    })
-
-    loadKeywords()
-    if (isAdmin) {
-      scanCleanup()
     }
 
-        </script>
-      <script src="/js/sidebarPolicy.js"></script>
-      <script>
-        initSidebarPolicy("dashboard")
-      </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    initDashboardPage()
+
+    if (typeof io !== "undefined") {
+      const socket = io()
+
+      socket.on("connect", () => {
+        const syncStatus = document.getElementById("syncStatus")
+        if (syncStatus) {
+          syncStatus.innerHTML = `<span class="sync-dot"></span> Realtime Sync`
+        }
+      })
+
+      socket.on("disconnect", () => {
+        const syncStatus = document.getElementById("syncStatus")
+        if (syncStatus) {
+          syncStatus.innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
+        }
+      })
+
+      socket.on("dashboard:refresh", async () => {
+        if (isRealtimeLoading) return
+        isRealtimeLoading = true
+
+        try {
+          await loadKeywords(true)
+          if (isAdmin) {
+            await scanCleanup()
+          }
+        } finally {
+          setTimeout(() => {
+            isRealtimeLoading = false
+          }, 600)
+        }
+      })
+    } else {
+      console.warn("Socket.IO ยังไม่พร้อมใช้งาน แต่ Dashboard จะโหลดข้อมูลปกติ")
+      const syncStatus = document.getElementById("syncStatus")
+      if (syncStatus) {
+        syncStatus.innerHTML = `<span class="sync-dot" style="background:#f59e0b;"></span> Sync Offline`
+      }
+    }
+  </script>
+
+  <script src="/js/sidebarPolicy.js"></script>
+  <script>
+    if (typeof initSidebarPolicy === "function") {
+      initSidebarPolicy("dashboard")
+    }
+  </script>
 </body>
 </html>
