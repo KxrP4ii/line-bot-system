@@ -622,8 +622,8 @@
         const isTargetSuper = item.role === "superadmin"
         const isSelf = String(item.id || item._id) === String(user.id || user._id)
 
-        const disableEdit = (isApprover && isTargetSuper) || isSelf
-        const disableUnlink = (!item.lineUserId) || (isApprover && isTargetSuper) || isSelf
+        const disableEdit = (isApprover && isTargetSuper)
+        const disableUnlink = (!item.lineUserId) || (isApprover && isTargetSuper)
         const showDelete = isSuper && !isTargetSuper && !isSelf
 
         const safeItemJson = JSON.stringify(item).replace(/'/g, "\\'")
