@@ -23,11 +23,12 @@ async function checkSessionAlive() {
       }
     })
 
-    if (res.status === 401 || res.status === 403 || res.status === 404) {
+    // 🔥 สำคัญมาก
+    if (!res.ok) {
       return forceLogout()
     }
   } catch (error) {
-    console.warn("Session check failed")
+    return forceLogout()
   }
 }
 
@@ -41,7 +42,8 @@ function initSessionGuard() {
 
   resetSessionTimer()
 
-  setInterval(checkSessionAlive, 30 * 1000)
+  // 🔥 ลดเวลาเช็คให้เร็วขึ้น
+  setInterval(checkSessionAlive, 10000)
 }
 
 document.addEventListener("DOMContentLoaded", initSessionGuard)
