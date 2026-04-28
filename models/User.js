@@ -1,14 +1,13 @@
 const mongoose = require("mongoose")
 
-const userSchema = new mongoose.Schema({
-  username: String,
-  password: String,
-  role: String,
-
-  sessionVersion: {
-    type: Number,
-    default: 0
-  },
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true
+    },
 
     password: {
       type: String,
@@ -24,6 +23,11 @@ const userSchema = new mongoose.Schema({
     superadminLevel: {
       type: Number,
       enum: [0, 1, 2],
+      default: 0
+    },
+
+    sessionVersion: {
+      type: Number,
       default: 0
     },
 
