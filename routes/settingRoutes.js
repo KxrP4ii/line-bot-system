@@ -22,7 +22,7 @@ async function getRegisterSetting() {
   return setting
 }
 
-// เปิดให้หน้า Login อ่านได้
+// ✅ Login page เรียกได้
 router.get("/register", async (req, res) => {
   try {
     const setting = await getRegisterSetting()
@@ -35,11 +35,11 @@ router.get("/register", async (req, res) => {
   }
 })
 
-// เฉพาะ admin เท่านั้นที่เปิด/ปิดได้
+// ✅ เฉพาะ admin
 router.put("/register", protect, async (req, res) => {
   try {
     if (!isAdmin(req.user.role)) {
-      return res.status(403).json({ error: "ไม่มีสิทธิ์ตั้งค่าระบบ" })
+      return res.status(403).json({ error: "ไม่มีสิทธิ์" })
     }
 
     const { registerEnabled } = req.body
@@ -51,13 +51,12 @@ router.put("/register", protect, async (req, res) => {
     )
 
     emitAll({
-      source: "settings",
-      action: "register-toggle",
+      type: "register-toggle",
       registerEnabled: setting.value === true
     })
 
     res.json({
-      message: "อัปเดตสถานะการสมัครสมาชิกสำเร็จ",
+      message: "อัปเดตสำเร็จ",
       registerEnabled: setting.value === true
     })
   } catch (error) {

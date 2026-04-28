@@ -10,9 +10,6 @@ const {
 const { protect } = require("../middleware/authMiddleware")
 const SystemSetting = require("../models/SystemSetting")
 
-// ==========================
-// helper เช็คเปิด/ปิดสมัคร
-// ==========================
 async function isRegisterEnabled() {
   let setting = await SystemSetting.findOne({ key: "register_enabled" })
 
@@ -26,9 +23,7 @@ async function isRegisterEnabled() {
   return setting.value === true
 }
 
-// ==========================
-// REGISTER (มีระบบเปิด/ปิด)
-// ==========================
+// ✅ REGISTER (ไม่ใช้ protect)
 router.post("/register", async (req, res, next) => {
   try {
     const enabled = await isRegisterEnabled()
@@ -45,14 +40,7 @@ router.post("/register", async (req, res, next) => {
   }
 }, registerUser)
 
-// ==========================
-// LOGIN
-// ==========================
 router.post("/login", loginUser)
-
-// ==========================
-// GET ME
-// ==========================
 router.get("/me", protect, getMe)
 
 module.exports = router
