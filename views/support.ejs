@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Support Tickets</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --line:#e7ebf3;
+      --text:#172033;
+      --muted:#6b7280;
+      --shadow:0 12px 32px rgba(15,23,42,.06);
+      --radius:20px;
+      --sidebar:#0f172a;
+      --sidebar-text:#cbd5e1;
+      --sidebar-active:#ffffff;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Thai",sans-serif;
+    }
+
+    .layout{ min-height:100vh; }
+
+    .sidebar{
+      background:var(--sidebar);
+      color:var(--sidebar-text);
+      min-height:100vh;
+      padding:24px 16px;
+      position:sticky;
+      top:0;
+    }
+
+    .brand{
+      color:#fff;
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:24px;
+    }
+
+    .nav-link-custom{
+      display:block;
+      text-decoration:none;
+      color:var(--sidebar-text);
+      padding:12px 14px;
+      border-radius:12px;
+      margin-bottom:8px;
+      transition:.15s ease;
+      font-weight:500;
+    }
+
+    .nav-link-custom.active,
+    .nav-link-custom:hover{
+      background:rgba(255,255,255,.08);
+      color:var(--sidebar-active);
+    }
+
+    .main{ padding:26px; }
+
+    .topbar,
+    .card-box,
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+    }
+
+    .topbar{
+      padding:20px 22px;
+      margin-bottom:22px;
+    }
+
+    .page-title{
+      font-size:28px;
+      font-weight:800;
+      margin:0;
+    }
+
+    .page-subtitle{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    .toolbar-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .toolbar-right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .sync-badge{
+      font-size:12px;
+      color:#18794E;
+      background:#e8f7ec;
+      border:1px solid #b7e4c7;
+      padding:5px 10px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .sync-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#16a34a;
+      display:inline-block;
+    }
+
+    .topbar{
+      padding:24px 26px;
+      margin-bottom:22px;
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+    }
+
+    .summary-card{
+      padding:20px 18px;
+      min-height:120px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:10px;
+      border:1px solid var(--line);
+      background:#ffffff;
+    }
+
+    .summary-label{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:0;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .summary-value{
+      font-size:30px;
+      font-weight:800;
+      line-height:1.05;
+      color:#111827;
+    }
+
+    .card-box{
+      padding:20px 20px 18px;
+      margin-bottom:22px;
+    }
+
+    .section-title{
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .section-sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:14px;
+    }
+
+    .toolbar-row{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .toolbar-right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .table-wrap{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:auto;
+      max-height:620px;
+      background:#ffffff;
+      box-shadow:0 10px 25px rgba(15,23,42,.04);
+    }
+
+    .table th,
+    .table td{
+      padding:16px 14px;
+      vertical-align:middle;
+    }
+
+    .table tbody tr:hover{
+      background:#f8fbff;
+    }
+
+    .table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f8fafc;
+      white-space:nowrap;
+      font-size:13px;
+      color:#4b5563;
+      border-bottom:1px solid var(--line);
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .message-box{
+      max-width:420px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      color:#374151;
+      font-size:14px;
+      background:#f8fafc;
+      border-radius:14px;
+      padding:12px 14px;
+    }
+
+    .detail-card{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      background:#f8fbff;
+      margin-bottom:12px;
+    }
+
+    .detail-label{
+      color:#475569;
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:4px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .detail-value{
+      font-size:14px;
+      color:#111827;
+      word-break:break-word;
+      white-space:pre-wrap;
+    }
+
+    .table{
+      margin-bottom:0;
+      vertical-align:middle;
+    }
+
+    .table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f8fafc;
+      white-space:nowrap;
+      font-size:13px;
+      color:#4b5563;
+      border-bottom:1px solid var(--line);
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:800;
+      min-width:92px;
+    }
+
+    .status-open{ background:#fdecec; color:#B42318; border:1px solid #f5b5b0; }
+    .status-closed{ background:#e8f7ec; color:#18794E; border:1px solid #b7e4c7; }
+    .status-bot{ background:#fff7e6; color:#92400e; border:1px solid #fde68a; }
+
+    .message-box{
+      max-width:420px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      color:#374151;
+      font-size:14px;
+    }
+
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:12px;
+      word-break:break-all;
+      color:#4b5563;
+    }
+
+    .answered-box{
+      font-size:13px;
+      color:#18794E;
+      font-weight:700;
+    }
+
+    .modal-content{
+      border:none;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 20px 50px rgba(15,23,42,.16);
+    }
+
+    .modal-header{
+      border-bottom:1px solid var(--line);
+      padding:16px 18px;
+    }
+
+    .modal-body{
+      padding:18px;
+    }
+
+    .modal-footer{
+      border-top:1px solid var(--line);
+      padding:14px 18px;
+    }
+
+    .detail-card{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:#fff;
+      margin-bottom:12px;
+    }
+
+    .detail-label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+
+    .detail-value{
+      font-size:14px;
+      color:#111827;
+      word-break:break-word;
+      white-space:pre-wrap;
+    }
+
+    .keyword-help{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:5px;
+    }
+
+    @media (max-width:991px){
+      .sidebar{ min-height:auto; position:relative; }
+      .main{ padding:18px; }
+      .page-title{ font-size:24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid layout">
+    <div class="row">
+      <div class="col-lg-2 p-0">
+        <aside class="sidebar">
+          <div class="brand">Workflow System</div>
+
+          <a href="/dashboard" class="nav-link-custom" id="dashboardMenu">Dashboard</a>
+          <a href="/analytics" class="nav-link-custom" id="analyticsMenu">Analytics</a>
+          <a href="/groups" class="nav-link-custom" id="groupsMenu">Groups</a>
+          <a href="/users" class="nav-link-custom" id="usersMenu">Users</a>
+          <a href="/logs" class="nav-link-custom" id="logsMenu">Logs</a>
+          <a href="/spam" class="nav-link-custom" id="spamMenu">Spam Monitor</a>
+          <a href="/cleanup" class="nav-link-custom" id="cleanupMenu">Storage Cleanup</a>
+          <a href="/support" class="nav-link-custom active" id="supportMenu">Support</a>
+        </aside>
+      </div>
+
+      <div class="col-lg-10">
+        <main class="main">
+          <div class="topbar">
+            <div class="toolbar-row">
+              <div>
+                <h1 class="page-title">Support Tickets</h1>
+                <div class="page-subtitle">ติดตามเคสลูกค้า วิเคราะห์ภาพรวม และแสดงชื่อทีมที่มาตอบเคส</div>
+              </div>
+
+              <div class="toolbar-right">
+                <span class="sync-badge" id="syncStatus">
+                  <span class="sync-dot"></span>
+                  Realtime Sync
+                </span>
+                <span id="userInfo" class="badge text-bg-dark"></span>
+                <button class="btn btn-primary btn-sm" onclick="openSupportSettings()">ตั้งค่า Follow-up</button>
+                <button class="btn btn-outline-primary btn-sm" onclick="loadTickets()">Refresh</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-2">
+              <div class="summary-card">
+                <div class="summary-label">Total Tickets</div>
+                <div id="totalCount" class="summary-value">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="summary-card">
+                <div class="summary-label">Open</div>
+                <div id="openCount" class="summary-value">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="summary-card">
+                <div class="summary-label">Bot Replied</div>
+                <div id="botCount" class="summary-value">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="summary-card">
+                <div class="summary-label">Closed</div>
+                <div id="closedCount" class="summary-value">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="summary-card">
+                <div class="summary-label">Human Answered</div>
+                <div id="humanCount" class="summary-value">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="summary-card">
+                <div class="summary-label">Avg Response</div>
+                <div id="avgTime" class="summary-value" style="font-size:20px;">0 นาที</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <div class="toolbar-row">
+              <div>
+                <div class="section-title">รายการเคส</div>
+                <div class="section-sub">แสดง 100 เคสล่าสุดจากระบบ Auto Follow-up</div>
+              </div>
+
+              <div class="toolbar-right">
+                <select id="statusFilter" class="form-select form-select-sm" onchange="renderTickets()" style="width:170px;">
+                  <option value="all">ทั้งหมด</option>
+                  <option value="open">Open</option>
+                  <option value="bot_replied">Bot Replied</option>
+                  <option value="closed">Closed</option>
+                </select>
+
+                <input
+                  id="searchInput"
+                  class="form-control form-control-sm"
+                  placeholder="ค้นหากลุ่ม / ข้อความ / คนตอบ"
+                  oninput="renderTickets()"
+                  style="min-width:260px;"
+                />
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>กลุ่ม</th>
+                    <th>ข้อความลูกค้า</th>
+                    <th>สถานะ</th>
+                    <th>คนที่มาตอบ</th>
+                    <th>เปิดเคสเมื่อ</th>
+                    <th>บอทตอบเมื่อ</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="ticketTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="ticketDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title mb-0">รายละเอียดเคส</h5>
+            <div class="text-muted small mt-1">ข้อมูลจากระบบ Auto Follow-up</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div id="ticketDetailContent"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิดหน้าต่าง</button>
+          <button class="btn btn-success" id="detailCloseTicketBtn">ปิดเคสนี้</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="supportSettingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title mb-0">ตั้งค่า Auto Follow-up</h5>
+            <div class="text-muted small mt-1">ปรับเวลา ข้อความ และ Keyword ที่ใช้แยกเคส</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="settingEnabled">
+            <label class="form-check-label" for="settingEnabled">
+              เปิดใช้งาน Auto Follow-up
+            </label>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">เวลารอก่อนให้บอทตอบ (นาที)</label>
+            <input type="number" id="settingMinutes" class="form-control" min="1" value="30">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">ข้อความที่ให้บอทตอบ</label>
+            <textarea id="settingText" class="form-control" rows="5"></textarea>
+          </div>
+
+          <hr>
+
+          <div class="mb-3">
+            <label class="form-label">Support Keywords</label>
+            <textarea
+              id="settingSupportKeywords"
+              class="form-control"
+              rows="7"
+              placeholder="ใส่คำละ 1 บรรทัด เช่น&#10;ปัญหา&#10;เสีย&#10;ใช้ไม่ได้"
+            ></textarea>
+            <div class="keyword-help">ถ้าข้อความลูกค้ามีคำเหล่านี้ ระบบจะเปิด Ticket</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Cleaning Keywords</label>
+            <textarea
+              id="settingCleaningKeywords"
+              class="form-control"
+              rows="7"
+              placeholder="ใส่คำละ 1 บรรทัด เช่น&#10;ทำความสะอาด&#10;ส่งงาน&#10;เรียบร้อย"
+            ></textarea>
+            <div class="keyword-help">ถ้าข้อความลูกค้ามีคำเหล่านี้ และไม่มีคำ Support ระบบจะไม่เปิด Ticket</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+          <button class="btn btn-primary" onclick="saveSupportSettings()">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/sidebarPolicy.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const token = localStorage.getItem("token")
+    let user = {}
+    let tickets = []
+    let supportSettingsModal
+    let ticketDetailModal
+
+    try {
+      user = JSON.parse(localStorage.getItem("user") || "{}")
+    } catch (error) {
+      user = {}
+    }
+
+    if (!token || !user || !["approver", "superadmin"].includes(user.role)) {
+      localStorage.clear()
+      window.location.replace("/login")
+    }
+
+    initSidebarPolicy("support")
+
+    function logout() {
+      localStorage.clear()
+      window.location.replace("/login")
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+    }
+
+    function formatDate(value) {
+      if (!value) return "-"
+      return new Date(value).toLocaleString("th-TH")
+    }
+
+    function statusBadge(status) {
+      if (status === "open") return `<span class="status-pill status-open">open</span>`
+      if (status === "bot_replied") return `<span class="status-pill status-bot">bot_replied</span>`
+      return `<span class="status-pill status-closed">closed</span>`
+    }
+
+    function answeredText(ticket) {
+      if (!ticket.answeredBy) {
+        return `<span class="text-muted">ยังไม่มีคนตอบ</span>`
+      }
+
+      return `
+        <div class="answered-box">${escapeHtml(ticket.answeredBy)}</div>
+        <div class="text-muted small">${escapeHtml(ticket.answeredByRole || "-")}</div>
+        <div class="text-muted small">${formatDate(ticket.answeredAt)}</div>
+      `
+    }
+
+    function updateSummary() {
+      const total = tickets.length
+      const open = tickets.filter(t => t.status === "open").length
+      const bot = tickets.filter(t => t.status === "bot_replied").length
+      const closed = tickets.filter(t => t.status === "closed").length
+      const humanAnswered = tickets.filter(t => t.answeredBy).length
+
+      let totalMinutes = 0
+      let count = 0
+
+      tickets.forEach(t => {
+        if (t.answeredAt && t.createdAt) {
+          const diff = new Date(t.answeredAt) - new Date(t.createdAt)
+          if (diff >= 0) {
+            totalMinutes += diff / 60000
+            count++
+          }
+        }
+      })
+
+      const avg = count ? (totalMinutes / count).toFixed(1) : 0
+
+      document.getElementById("totalCount").textContent = total
+      document.getElementById("openCount").textContent = open
+      document.getElementById("botCount").textContent = bot
+      document.getElementById("closedCount").textContent = closed
+      document.getElementById("humanCount").textContent = humanAnswered
+      document.getElementById("avgTime").textContent = `${avg} นาที`
+    }
+
+    async function loadTickets() {
+      try {
+        const res = await fetch("/api/support", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "โหลด ticket ไม่สำเร็จ")
+          return
+        }
+
+        tickets = Array.isArray(data) ? data : []
+        updateSummary()
+        renderTickets()
+      } catch (error) {
+        alert("โหลด ticket ไม่สำเร็จ")
+      }
+    }
+
+    function renderTickets() {
+      const tbody = document.getElementById("ticketTable")
+      const status = document.getElementById("statusFilter").value
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase()
+
+      let rows = [...tickets]
+
+      if (status !== "all") {
+        rows = rows.filter(t => t.status === status)
+      }
+
+      if (q) {
+        rows = rows.filter(t => {
+          const text = [
+            t.groupName,
+            t.groupId,
+            t.message,
+            t.customerUserId,
+            t.status,
+            t.answeredBy,
+            t.answeredByRole
+          ].join(" ").toLowerCase()
+
+          return text.includes(q)
+        })
+      }
+
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">ไม่พบเคส</td></tr>`
+        return
+      }
+
+      tbody.innerHTML = rows.map(t => `
+        <tr>
+          <td>
+            <strong>${escapeHtml(t.groupName || "-")}</strong>
+            <div class="mono">${escapeHtml(t.groupId || "")}</div>
+          </td>
+
+          <td>
+            <div class="message-box">${escapeHtml(t.message || "-")}</div>
+            ${t.hasImage ? `<span class="badge text-bg-secondary mt-2">มีรูปภาพแนบ</span>` : ``}
+          </td>
+
+          <td>${statusBadge(t.status)}</td>
+          <td>${answeredText(t)}</td>
+          <td>${formatDate(t.createdAt)}</td>
+          <td>${formatDate(t.botRepliedAt)}</td>
+
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm" onclick="openTicketDetail('${t._id}')">ดูรายละเอียด</button>
+              ${
+                t.status === "open"
+                  ? `<button class="btn btn-success btn-sm" onclick="closeTicket('${t._id}')">ปิดเคส</button>`
+                  : ``
+              }
+            </div>
+          </td>
+        </tr>
+      `).join("")
+    }
+
+    function openTicketDetail(id) {
+      const ticket = tickets.find(t => String(t._id) === String(id))
+
+      if (!ticket) {
+        alert("ไม่พบข้อมูลเคส")
+        return
+      }
+
+      document.getElementById("ticketDetailContent").innerHTML = `
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">ชื่อกลุ่ม</div>
+              <div class="detail-value">${escapeHtml(ticket.groupName || "-")}</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">สถานะ</div>
+              <div class="detail-value">${statusBadge(ticket.status)}</div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="detail-card">
+              <div class="detail-label">Group ID</div>
+              <div class="detail-value mono">${escapeHtml(ticket.groupId || "-")}</div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="detail-card">
+              <div class="detail-label">ข้อความลูกค้า</div>
+              <div class="detail-value">${escapeHtml(ticket.message || "-")}</div>
+              ${ticket.hasImage ? `<span class="badge text-bg-secondary mt-2">มีรูปภาพแนบ</span>` : ``}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">LINE User ID ลูกค้า</div>
+              <div class="detail-value mono">${escapeHtml(ticket.customerUserId || "-")}</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">คนที่มาตอบ</div>
+              <div class="detail-value">
+                ${ticket.answeredBy ? `${escapeHtml(ticket.answeredBy)} (${escapeHtml(ticket.answeredByRole || "-")})` : "-"}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">เวลาที่ทีมตอบ</div>
+              <div class="detail-value">${formatDate(ticket.answeredAt)}</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">เปิดเคสเมื่อ</div>
+              <div class="detail-value">${formatDate(ticket.createdAt)}</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">บอทตอบเมื่อ</div>
+              <div class="detail-value">${formatDate(ticket.botRepliedAt)}</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-card">
+              <div class="detail-label">ปิดเคสเมื่อ</div>
+              <div class="detail-value">${formatDate(ticket.closedAt)}</div>
+            </div>
+          </div>
+        </div>
+      `
+
+      const closeBtn = document.getElementById("detailCloseTicketBtn")
+
+      if (ticket.status === "open") {
+        closeBtn.style.display = "inline-block"
+        closeBtn.onclick = async () => {
+          await closeTicket(id, true)
+        }
+      } else {
+        closeBtn.style.display = "none"
+      }
+
+      ticketDetailModal.show()
+    }
+
+    async function closeTicket(id, fromDetailModal = false) {
+      if (!confirm("ยืนยันปิดเคสนี้?")) return
+
+      try {
+        const res = await fetch(`/api/support/close/${id}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "ปิดเคสไม่สำเร็จ")
+          return
+        }
+
+        if (fromDetailModal && ticketDetailModal) {
+          ticketDetailModal.hide()
+        }
+
+        await loadTickets()
+      } catch (error) {
+        alert("ปิดเคสไม่สำเร็จ")
+      }
+    }
+
+    async function openSupportSettings() {
+      try {
+        const res = await fetch("/api/support/settings", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "โหลดการตั้งค่าไม่สำเร็จ")
+          return
+        }
+
+        document.getElementById("settingEnabled").checked = Boolean(data.enabled)
+        document.getElementById("settingMinutes").value = data.reminderMinutes || 30
+        document.getElementById("settingText").value = data.reminderText || ""
+
+        document.getElementById("settingSupportKeywords").value = Array.isArray(data.supportKeywords)
+          ? data.supportKeywords.join("\n")
+          : ""
+
+        document.getElementById("settingCleaningKeywords").value = Array.isArray(data.cleaningKeywords)
+          ? data.cleaningKeywords.join("\n")
+          : ""
+
+        supportSettingsModal.show()
+      } catch (error) {
+        alert("โหลดการตั้งค่าไม่สำเร็จ")
+      }
+    }
+
+    async function saveSupportSettings() {
+      try {
+        const payload = {
+          enabled: document.getElementById("settingEnabled").checked,
+          reminderMinutes: Number(document.getElementById("settingMinutes").value || 30),
+          reminderText: document.getElementById("settingText").value,
+          supportKeywords: document.getElementById("settingSupportKeywords").value,
+          cleaningKeywords: document.getElementById("settingCleaningKeywords").value
+        }
+
+        const res = await fetch("/api/support/settings", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "บันทึกการตั้งค่าไม่สำเร็จ")
+          return
+        }
+
+        supportSettingsModal.hide()
+        alert("บันทึกการตั้งค่าสำเร็จ")
+      } catch (error) {
+        alert("บันทึกการตั้งค่าไม่สำเร็จ")
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      supportSettingsModal = new bootstrap.Modal(document.getElementById("supportSettingsModal"))
+      ticketDetailModal = new bootstrap.Modal(document.getElementById("ticketDetailModal"))
+    })
+
+    const socket = io()
+
+    socket.on("connect", () => {
+      document.getElementById("syncStatus").innerHTML = `<span class="sync-dot"></span> Realtime Sync`
+    })
+
+    socket.on("disconnect", () => {
+      document.getElementById("syncStatus").innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
+    })
+
+    socket.on("dashboard:refresh", () => {
+      loadTickets()
+    })
+
+    setInterval(loadTickets, 10000)
+    loadTickets()
+  </script>
+</body>
+</html>

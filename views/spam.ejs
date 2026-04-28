@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spam Monitor</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --line:#e7ebf3;
+      --text:#172033;
+      --muted:#6b7280;
+      --shadow:0 12px 32px rgba(15,23,42,.06);
+      --radius:20px;
+      --sidebar:#0f172a;
+      --sidebar-text:#cbd5e1;
+      --sidebar-active:#ffffff;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Thai",sans-serif;
+    }
+
+    .layout{ min-height:100vh; }
+
+    .sidebar{
+      background:var(--sidebar);
+      color:var(--sidebar-text);
+      min-height:100vh;
+      padding:24px 16px;
+      position:sticky;
+      top:0;
+    }
+
+    .brand{
+      color:#fff;
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:24px;
+    }
+
+    .nav-link-custom{
+      display:block;
+      text-decoration:none;
+      color:var(--sidebar-text);
+      padding:12px 14px;
+      border-radius:12px;
+      margin-bottom:8px;
+      transition:.15s ease;
+      font-weight:500;
+    }
+
+    .nav-link-custom.active,
+    .nav-link-custom:hover{
+      background:rgba(255,255,255,.08);
+      color:var(--sidebar-active);
+    }
+
+    .main{ padding:26px; }
+
+    .topbar,
+    .card-box,
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+    }
+
+    .topbar{
+      padding:20px 22px;
+      margin-bottom:22px;
+    }
+
+    .page-title{
+      font-size:28px;
+      font-weight:800;
+      margin:0;
+    }
+
+    .page-subtitle{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    .toolbar-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .toolbar-right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .sync-badge{
+      font-size:12px;
+      color:#18794E;
+      background:#e8f7ec;
+      border:1px solid #b7e4c7;
+      padding:5px 10px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .sync-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#16a34a;
+      display:inline-block;
+    }
+
+    .summary-card{
+      padding:16px;
+      height:100%;
+    }
+
+    .summary-label{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:8px;
+    }
+
+    .summary-value{
+      font-size:28px;
+      font-weight:800;
+      line-height:1;
+    }
+
+    .card-box{
+      padding:18px;
+      margin-bottom:22px;
+    }
+
+    .section-title{
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+
+    .section-sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:14px;
+    }
+
+    .table-wrap{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:auto;
+      max-height:520px;
+      background:#fff;
+    }
+
+    .table{
+      margin-bottom:0;
+      vertical-align:middle;
+    }
+
+    .table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f8fafc;
+      white-space:nowrap;
+      font-size:13px;
+      color:#4b5563;
+      border-bottom:1px solid var(--line);
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid #e5e7eb;
+      background:#f9fafb;
+      color:#374151;
+    }
+
+    .pill-red{
+      background:#fdecec;
+      color:#B42318;
+      border-color:#f5b5b0;
+    }
+
+    .pill-yellow{
+      background:#fff7e6;
+      color:#92400e;
+      border-color:#fde68a;
+    }
+
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:12px;
+      word-break:break-all;
+    }
+
+    @media (max-width:991px){
+      .sidebar{
+        min-height:auto;
+        position:relative;
+      }
+
+      .main{
+        padding:18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid layout">
+    <div class="row">
+      <div class="col-lg-2 p-0">
+        <aside class="sidebar">
+  <div class="brand">Workflow System</div>
+
+  <a href="/dashboard" class="nav-link-custom" id="dashboardMenu">Dashboard</a>
+  <a href="/analytics" class="nav-link-custom" id="analyticsMenu">Analytics</a>
+  <a href="/groups" class="nav-link-custom" id="groupsMenu">Groups</a>
+  <a href="/users" class="nav-link-custom" id="usersMenu">Users</a>
+  <a href="/logs" class="nav-link-custom" id="logsMenu">Logs</a>
+  <a href="/spam" class="nav-link-custom" id="spamMenu">Spam Monitor</a>
+  <a href="/cleanup" class="nav-link-custom" id="cleanupMenu">Storage Cleanup</a>
+  <a href="/support" id="supportMenu" class="nav-link-custom">Support</a>
+    </aside>
+      </div>
+
+      <div class="col-lg-10">
+        <main class="main">
+          <div class="topbar">
+            <div class="toolbar-row">
+              <div>
+                <h1 class="page-title">Spam Monitor</h1>
+                <div class="page-subtitle">ดูรายการ Auto Mute และเหตุการณ์ Anti-Spam แบบ realtime</div>
+              </div>
+
+              <div class="toolbar-right">
+                <span class="sync-badge" id="syncStatus">
+                  <span class="sync-dot"></span>
+                  Realtime Sync
+                </span>
+                <span id="userInfo" class="badge text-bg-dark"></span>
+                <button class="btn btn-outline-primary btn-sm" onclick="loadSpamData()">Refresh</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <div class="summary-card">
+                <div class="summary-label">Active Mutes</div>
+                <div id="activeMuteCount" class="summary-value">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="summary-card">
+                <div class="summary-label">Spam Events</div>
+                <div id="spamLogCount" class="summary-value">0</div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="summary-card">
+                <div class="summary-label">Last Updated</div>
+                <div id="lastUpdated" class="summary-value" style="font-size:18px;">-</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <div class="toolbar-row">
+              <div>
+                <div class="section-title">Active Mutes</div>
+                <div class="section-sub">ผู้ใช้ที่ถูก mute อยู่ตอนนี้</div>
+              </div>
+
+              <div class="toolbar-right">
+                <button class="btn btn-outline-danger btn-sm" onclick="clearAllMutes()">Clear All Mutes</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>User ID</th>
+                    <th>Group ID</th>
+                    <th>Level</th>
+                    <th>Remaining</th>
+                    <th>Until</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="muteTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <div class="toolbar-row">
+              <div>
+                <div class="section-title">Spam Logs</div>
+                <div class="section-sub">ประวัติการโดน block / mute ล่าสุด</div>
+              </div>
+
+              <div class="toolbar-right">
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control form-control-sm"
+                  placeholder="ค้นหา userId / groupId / keyword / reason"
+                  oninput="renderLogs()"
+                  style="min-width:280px;"
+                />
+                <button class="btn btn-outline-danger btn-sm" onclick="clearLogs()">Clear Logs</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>User ID</th>
+                    <th>Group ID</th>
+                    <th>Keyword</th>
+                    <th>Reason</th>
+                    <th>Mute</th>
+                  </tr>
+                </thead>
+                <tbody id="logTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const token = localStorage.getItem("token")
+    let user = {}
+    let spamData = {
+      activeMutes: [],
+      logs: []
+    }
+
+    try {
+      user = JSON.parse(localStorage.getItem("user") || "{}")
+    } catch (error) {
+      user = {}
+    }
+
+    if (!token || !user || !["approver", "superadmin"].includes(user.role)) {
+      localStorage.clear()
+      window.location.replace("/login")
+    }
+
+    document.getElementById("userInfo").textContent = `${user.username || ""} (${user.role || ""})`
+
+    function logout() {
+      localStorage.clear()
+      window.location.replace("/login")
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "-"
+      return new Date(value).toLocaleString()
+    }
+
+    function formatRemaining(ms) {
+      if (!ms || ms <= 0) return "0s"
+
+      const totalSec = Math.ceil(ms / 1000)
+      const min = Math.floor(totalSec / 60)
+      const sec = totalSec % 60
+
+      if (min <= 0) return `${sec}s`
+      return `${min}m ${sec}s`
+    }
+
+    function reasonPill(reason) {
+      if (reason === "muted") return `<span class="pill pill-red">muted</span>`
+      if (reason === "user-rate-limit") return `<span class="pill pill-red">user limit</span>`
+      if (reason === "group-rate-limit") return `<span class="pill pill-yellow">group limit</span>`
+      if (reason === "keyword-cooldown") return `<span class="pill">cooldown</span>`
+      return `<span class="pill">${reason || "-"}</span>`
+    }
+
+    async function loadSpamData() {
+      try {
+        const res = await fetch("/api/spam/status", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "โหลด Spam Monitor ไม่สำเร็จ")
+          return
+        }
+
+        spamData = {
+          activeMutes: Array.isArray(data.activeMutes) ? data.activeMutes : [],
+          logs: Array.isArray(data.logs) ? data.logs : []
+        }
+
+        document.getElementById("activeMuteCount").textContent = spamData.activeMutes.length
+        document.getElementById("spamLogCount").textContent = spamData.logs.length
+        document.getElementById("lastUpdated").textContent = new Date().toLocaleTimeString()
+
+        renderMutes()
+        renderLogs()
+      } catch (error) {
+        alert("โหลด Spam Monitor ไม่สำเร็จ")
+      }
+    }
+
+    function renderMutes() {
+      const tbody = document.getElementById("muteTableBody")
+      tbody.innerHTML = ""
+
+      if (!spamData.activeMutes.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">ไม่มีผู้ใช้ที่ถูก mute อยู่</td></tr>`
+        return
+      }
+
+      tbody.innerHTML = spamData.activeMutes.map(item => `
+        <tr>
+          <td class="mono">${item.userId || "-"}</td>
+          <td class="mono">${item.groupId || "-"}</td>
+          <td><span class="pill pill-red">Level ${item.level || 0}</span></td>
+          <td>${formatRemaining(item.remainingMs)}</td>
+          <td>${formatDateTime(item.until)}</td>
+          <td>
+            <button class="btn btn-outline-success btn-sm" onclick="clearMute('${item.userId}', '${item.groupId}')">
+              Unmute
+            </button>
+          </td>
+        </tr>
+      `).join("")
+    }
+
+    function renderLogs() {
+      const tbody = document.getElementById("logTableBody")
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase()
+
+      let logs = spamData.logs
+
+      if (q) {
+        logs = logs.filter(item => {
+          const text = [
+            item.userId,
+            item.groupId,
+            item.keyword,
+            item.reason,
+            item.muteLevel
+          ].join(" ").toLowerCase()
+
+          return text.includes(q)
+        })
+      }
+
+      tbody.innerHTML = ""
+
+      if (!logs.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">ยังไม่มี spam logs</td></tr>`
+        return
+      }
+
+      tbody.innerHTML = logs.map(item => `
+        <tr>
+          <td>${formatDateTime(item.createdAt)}</td>
+          <td class="mono">${item.userId || "-"}</td>
+          <td class="mono">${item.groupId || "-"}</td>
+          <td>${item.keyword || "-"}</td>
+          <td>${reasonPill(item.reason)}</td>
+          <td>
+            ${
+              item.muteLevel
+                ? `<span class="pill pill-red">Level ${item.muteLevel}</span>`
+                : "-"
+            }
+          </td>
+        </tr>
+      `).join("")
+    }
+
+    async function clearMute(userId, groupId) {
+      if (!confirm("ยืนยันปลด mute ผู้ใช้นี้?")) return
+
+      try {
+        const res = await fetch("/api/spam/clear-mute", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ userId, groupId })
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "ปลด mute ไม่สำเร็จ")
+          return
+        }
+
+        await loadSpamData()
+      } catch (error) {
+        alert("ปลด mute ไม่สำเร็จ")
+      }
+    }
+
+    async function clearAllMutes() {
+      if (!confirm("ยืนยันล้าง mute ทั้งหมด?")) return
+
+      try {
+        const res = await fetch("/api/spam/clear-all-mutes", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "ล้าง mute ไม่สำเร็จ")
+          return
+        }
+
+        await loadSpamData()
+      } catch (error) {
+        alert("ล้าง mute ไม่สำเร็จ")
+      }
+    }
+
+    async function clearLogs() {
+      if (!confirm("ยืนยันล้าง spam logs?")) return
+
+      try {
+        const res = await fetch("/api/spam/clear-logs", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "ล้าง logs ไม่สำเร็จ")
+          return
+        }
+
+        await loadSpamData()
+      } catch (error) {
+        alert("ล้าง logs ไม่สำเร็จ")
+      }
+    }
+
+    const socket = io()
+
+    socket.on("connect", () => {
+      document.getElementById("syncStatus").innerHTML = `<span class="sync-dot"></span> Realtime Sync`
+    })
+
+    socket.on("disconnect", () => {
+      document.getElementById("syncStatus").innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
+    })
+
+    socket.on("dashboard:refresh", () => {
+      loadSpamData()
+    })
+
+    setInterval(loadSpamData, 5000)
+    loadSpamData()
+  </script>
+    <script src="/js/sidebarPolicy.js"></script>
+    <script>
+  initSidebarPolicy("spam")
+    </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

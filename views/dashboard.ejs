@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --line:#e7ebf3;
+      --text:#172033;
+      --muted:#6b7280;
+      --primary:#1f3a8a;
+      --primary-soft:#eef3ff;
+      --success-soft:#eef9f1;
+      --warning-soft:#fff8e8;
+      --danger-soft:#fff1f1;
+      --shadow:0 12px 32px rgba(15,23,42,.06);
+      --radius:20px;
+      --sidebar:#0f172a;
+      --sidebar-text:#cbd5e1;
+      --sidebar-active:#ffffff;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Thai",sans-serif;
+    }
+
+    .layout{
+      min-height:100vh;
+    }
+
+    .sidebar{
+      background:var(--sidebar);
+      color:var(--sidebar-text);
+      min-height:100vh;
+      padding:24px 16px;
+      position:sticky;
+      top:0;
+    }
+
+    .brand{
+      color:#fff;
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:24px;
+      letter-spacing:.2px;
+    }
+
+    .nav-link-custom{
+      display:block;
+      text-decoration:none;
+      color:var(--sidebar-text);
+      padding:12px 14px;
+      border-radius:12px;
+      margin-bottom:8px;
+      transition:.15s ease;
+      font-weight:500;
+    }
+
+    .nav-link-custom.active,
+    .nav-link-custom:hover{
+      background:rgba(255,255,255,.08);
+      color:var(--sidebar-active);
+    }
+
+    .main{
+      padding:26px;
+    }
+
+    .topbar,
+    .card-box,
+    .summary-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+    }
+
+    .topbar{
+      padding:20px 22px;
+      margin-bottom:22px;
+    }
+
+    .page-title{
+      font-size:28px;
+      font-weight:800;
+      margin:0;
+      line-height:1.2;
+      letter-spacing:-.02em;
+    }
+
+    .page-subtitle{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    .summary-card{
+      padding:18px 18px 16px;
+      height:100%;
+    }
+
+    .summary-label{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:10px;
+    }
+
+    .summary-value{
+      font-size:30px;
+      font-weight:800;
+      line-height:1;
+    }
+
+    .card-box{
+      padding:18px;
+      margin-bottom:22px;
+    }
+
+    .section-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+
+    .section-title{
+      font-size:17px;
+      font-weight:800;
+      margin:0;
+      line-height:1.2;
+    }
+
+    .section-subtitle{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:4px;
+    }
+
+    .table-wrap{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:auto;
+      max-height:620px;
+      background:#fff;
+    }
+
+    .table{
+      margin-bottom:0;
+      vertical-align:middle;
+    }
+
+    .table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f8fafc;
+      white-space:nowrap;
+      font-size:13px;
+      color:#4b5563;
+      border-bottom:1px solid var(--line);
+    }
+
+    .preview-img{
+      width:112px;
+      height:68px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid #dfe5ec;
+      background:#fff;
+    }
+
+    .detail-preview-img{
+      width:100%;
+      max-width:340px;
+      border-radius:16px;
+      border:1px solid #dfe5ec;
+      background:#fff;
+    }
+
+    .keyword-main{
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .keyword-sub{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    .response-preview{
+      max-width:320px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color:#475467;
+      font-size:13px;
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:92px;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .status-pending{
+      background:var(--warning-soft);
+      color:#9a6700;
+    }
+
+    .status-approved{
+      background:var(--success-soft);
+      color:#0f7a38;
+    }
+
+    .status-rejected{
+      background:var(--danger-soft);
+      color:#b42318;
+    }
+
+    .toolbar-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:14px;
+    }
+
+    .toolbar-left,
+    .toolbar-right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .sync-badge{
+      font-size:12px;
+      color:#18794E;
+      background:#e8f7ec;
+      border:1px solid #b7e4c7;
+      padding:5px 10px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .sync-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#16a34a;
+      display:inline-block;
+    }
+
+    .cleanup-grid .cleanup-stat{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:#fbfcfe;
+      height:100%;
+    }
+
+    .cleanup-value{
+      font-size:24px;
+      font-weight:800;
+      line-height:1.1;
+    }
+
+    .cleanup-list{
+      max-height:240px;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:10px 12px;
+      background:#fff;
+      font-size:13px;
+    }
+
+    .cleanup-row{
+      padding:10px 4px;
+      border-bottom:1px solid #eef2f7;
+      word-break:break-word;
+    }
+
+    .cleanup-row:last-child{
+      border-bottom:none;
+    }
+
+    .modal-content{
+      border:none;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 20px 50px rgba(15,23,42,.16);
+    }
+
+    .modal-header{
+      border-bottom:1px solid var(--line);
+      padding:16px 18px;
+    }
+
+    .modal-body{
+      padding:18px;
+    }
+
+    .modal-footer{
+      border-top:1px solid var(--line);
+      padding:14px 18px;
+    }
+
+    .detail-safe-text{
+      word-break:break-word;
+      overflow-wrap:anywhere;
+      white-space:pre-wrap;
+    }
+
+    #detailResponse,
+    #detailMediaUrl,
+    #detailPreviewImageUrl{
+      max-width:100%;
+      word-break:break-word;
+      overflow-wrap:anywhere;
+      white-space:pre-wrap;
+    }
+
+    #uploadPreview img,
+    #uploadPreview video{
+      max-width:220px;
+      border-radius:14px;
+      border:1px solid #dfe5ec;
+      background:#fff;
+    }
+
+    .form-muted{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .accordion-clean .accordion-item{
+      border:1px solid var(--line);
+      border-radius:16px !important;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .accordion-clean .accordion-button{
+      background:#fff;
+      font-weight:700;
+      box-shadow:none !important;
+    }
+
+    .accordion-clean .accordion-button:not(.collapsed){
+      background:#fff;
+      color:var(--text);
+    }
+
+    @media (max-width:991px){
+      .sidebar{
+        min-height:auto;
+        position:relative;
+      }
+
+      .main{
+        padding:18px;
+      }
+
+      .page-title{
+        font-size:24px;
+      }
+
+      .summary-value{
+        font-size:26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid layout">
+    <div class="row">
+      <div class="col-lg-2 p-0">
+        <aside class="sidebar">
+  <div class="brand">Workflow System</div>
+
+  <a href="/dashboard" class="nav-link-custom" id="dashboardMenu">Dashboard</a>
+  <a href="/analytics" class="nav-link-custom" id="analyticsMenu">Analytics</a>
+  <a href="/groups" class="nav-link-custom" id="groupsMenu">Groups</a>
+  <a href="/users" class="nav-link-custom" id="usersMenu">Users</a>
+  <a href="/logs" class="nav-link-custom" id="logsMenu">Logs</a>
+  <a href="/spam" class="nav-link-custom" id="spamMenu">Spam Monitor</a>
+  <a href="/cleanup" class="nav-link-custom" id="cleanupMenu">Storage Cleanup</a>
+  <a href="/support" id="supportMenu" class="nav-link-custom">Support</a>
+  </aside>
+      </div>
+
+      <div class="col-lg-10">
+        <main class="main">
+          <div class="topbar">
+            <div class="toolbar-row mb-0">
+              <div>
+                <h1 class="page-title">Dashboard</h1>
+                <div class="page-subtitle" id="dashboardSubtitle">ภาพรวมรายการและเครื่องมือจัดการระบบ</div>
+              </div>
+
+              <div class="toolbar-right">
+                <span class="sync-badge" id="syncStatus">
+                  <span class="sync-dot"></span>
+                  Realtime Sync
+                </span>
+                <span id="userInfo" class="badge text-bg-dark"></span>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#keywordFormModal">
+                  + เพิ่มข้อมูล
+                </button>
+                <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4" id="summarySection">
+            <div class="col-6 col-xl-3">
+              <div class="summary-card">
+                <div class="summary-label">ทั้งหมด</div>
+                <div id="totalCount" class="summary-value">0</div>
+              </div>
+            </div>
+            <div class="col-6 col-xl-3">
+              <div class="summary-card">
+                <div class="summary-label">Pending</div>
+                <div id="pendingCount" class="summary-value">0</div>
+              </div>
+            </div>
+            <div class="col-6 col-xl-3">
+              <div class="summary-card">
+                <div class="summary-label">Approved</div>
+                <div id="approvedCount" class="summary-value">0</div>
+              </div>
+            </div>
+            <div class="col-6 col-xl-3">
+              <div class="summary-card">
+                <div class="summary-label">Rejected</div>
+                <div id="rejectedCount" class="summary-value">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-box mb-4" id="tableSection">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">รายการข้อมูล</h2>
+                <div class="section-subtitle" id="tableSubtitle">ค้นหา กรอง และจัดการรายการจากส่วนนี้</div>
+              </div>
+
+              <div class="toolbar-right">
+                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#keywordFormModal">
+                  + เพิ่มข้อมูล
+                </button>
+              </div>
+            </div>
+
+            <div class="toolbar-row">
+              <div class="toolbar-left">
+                <input
+                  type="text"
+                  id="searchKeywordInput"
+                  class="form-control"
+                  placeholder="ค้นหา keyword, response, คนสร้าง"
+                  oninput="applyKeywordFilters()"
+                  style="min-width:280px"
+                />
+
+                <select id="statusFilter" class="form-select" onchange="applyKeywordFilters()" style="min-width:180px">
+                  <option value="">ทั้งหมด</option>
+                  <option value="pending">pending</option>
+                  <option value="approved">approved</option>
+                  <option value="rejected">rejected</option>
+                </select>
+              </div>
+
+              <div class="toolbar-right">
+                <span class="text-muted small" id="filterResultText"></span>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetKeywordFilters()">ล้างตัวกรอง</button>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>ข้อมูลหลัก</th>
+                    <th>Response</th>
+                    <th>Media</th>
+                    <th>Status</th>
+                    <th>ผู้สร้าง</th>
+                    <th>ผู้อนุมัติ</th>
+                    <th>เหตุผลตีกลับ</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="keywordTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="accordion accordion-clean mb-4" id="cleanupSection">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cleanupAccordionBody">
+                  Storage Cleanup
+                </button>
+              </h2>
+              <div id="cleanupAccordionBody" class="accordion-collapse collapse">
+                <div class="accordion-body">
+                  <div class="section-subtitle mb-3">ตรวจ orphan file ใน Cloudinary และลบเฉพาะไฟล์ที่ไม่มีการใช้งานแล้ว</div>
+
+                  <div class="toolbar-row">
+                    <div class="toolbar-left">
+                      <div class="form-muted">ระบบจะไม่ลบ keyword, user หรือ log</div>
+                    </div>
+                    <div class="toolbar-right" id="cleanupActionBar">
+                      <button class="btn btn-outline-secondary btn-sm" onclick="scanCleanup()">สแกนก่อน</button>
+                      <button class="btn btn-warning btn-sm" onclick="openCleanupConfirm()">Cleanup ทันที</button>
+                    </div>
+                  </div>
+
+                  <div class="row g-3 cleanup-grid mb-3">
+                    <div class="col-md-3">
+                      <div class="cleanup-stat">
+                        <div class="summary-label">Cloudinary Files</div>
+                        <div class="cleanup-value" id="cleanupTotalFiles">-</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="cleanup-stat">
+                        <div class="summary-label">Used in DB</div>
+                        <div class="cleanup-value" id="cleanupUsedFiles">-</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="cleanup-stat">
+                        <div class="summary-label">Orphan Files</div>
+                        <div class="cleanup-value" id="cleanupOrphanCount">-</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="cleanup-stat">
+                        <div class="summary-label">Orphan Size</div>
+                        <div class="cleanup-value" id="cleanupOrphanSize">-</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cleanup-list" id="cleanupPreviewList">
+                    <div class="text-muted">ยังไม่ได้สแกนข้อมูล</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="appToast" class="toast align-items-center border-0" role="alert">
+      <div class="d-flex">
+        <div id="appToastBody" class="toast-body">สำเร็จ</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="keywordFormModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title mb-0">เพิ่ม / แก้ไขข้อมูล</h5>
+            <div class="form-muted mt-1" id="formSubtitle">ใช้ฟอร์มนี้สำหรับสร้างหรือแก้ไข keyword</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="keywordForm">
+            <input type="hidden" id="editId" />
+            <input type="hidden" id="mediaPublicId" />
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Keyword</label>
+                <input type="text" id="keyword" class="form-control" required />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">ประเภทสื่อ</label>
+                <select id="mediaType" class="form-select">
+                  <option value="none">ไม่มีสื่อ</option>
+                  <option value="image">รูปภาพ</option>
+                  <option value="video">วิดีโอ</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Response</label>
+                <textarea id="response" class="form-control" rows="4" required></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Media URL</label>
+                <input type="text" id="mediaUrl" class="form-control" placeholder="https://..." />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Preview Image URL (สำหรับวิดีโอ)</label>
+                <input type="text" id="previewImageUrl" class="form-control" placeholder="https://..." />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">อัปโหลดไฟล์</label>
+                <input type="file" id="fileInput" class="form-control" />
+              </div>
+
+              <div class="col-md-6 d-flex align-items-end">
+                <div class="form-muted">
+                  เลือกรูปหรือวิดีโอจากเครื่อง ระบบจะอัปโหลดขึ้น Cloudinary และใส่ URL ให้อัตโนมัติ
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div id="uploadPreview"></div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">ล้างฟอร์ม</button>
+          <button type="submit" form="keywordForm" class="btn btn-primary">บันทึกข้อมูล</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="detailKeywordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-info-subtle">
+          <h5 class="modal-title">รายละเอียดข้อมูล</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="detailItemId" />
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <strong>Keyword:</strong>
+              <span id="detailKeyword" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Status:</strong>
+              <span id="detailStatus" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-12">
+              <strong>Response:</strong>
+              <div id="detailResponse" class="mt-2 border rounded p-3 bg-light text-break"></div>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Media Type:</strong>
+              <span id="detailMediaType" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Created By:</strong>
+              <span id="detailCreatedBy" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Approved By:</strong>
+              <span id="detailApprovedBy" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Rejected By:</strong>
+              <span id="detailRejectedBy" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-12">
+              <strong>Reject Reason:</strong>
+              <span id="detailRejectReason" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-12">
+              <strong>Media URL:</strong>
+              <div id="detailMediaUrl" class="detail-safe-text"></div>
+            </div>
+
+            <div class="col-12">
+              <strong>Preview Image URL:</strong>
+              <div id="detailPreviewImageUrl" class="detail-safe-text"></div>
+            </div>
+
+            <div class="col-12">
+              <strong>Preview:</strong>
+              <div id="detailPreviewBox" class="mt-2"></div>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Created At:</strong>
+              <span id="detailCreatedAt" class="detail-safe-text"></span>
+            </div>
+
+            <div class="col-md-6">
+              <strong>Updated At:</strong>
+              <span id="detailUpdatedAt" class="detail-safe-text"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" id="detailActionButtons">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิด</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="rejectKeywordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger-subtle">
+          <h5 class="modal-title">Reject ข้อมูล</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="rejectItemId" />
+          <div id="rejectError" class="alert alert-danger d-none"></div>
+
+          <div class="mb-3">
+            <label class="form-label">เหตุผลที่ reject</label>
+            <textarea id="rejectReasonInput" class="form-control" rows="4" placeholder="กรอกเหตุผล..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+          <button class="btn btn-danger" onclick="submitRejectKeyword()">ยืนยัน Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="approveKeywordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success-subtle">
+          <h5 class="modal-title">ยืนยันการอนุมัติ</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" id="approveItemId" />
+          <p class="mb-0">คุณต้องการอนุมัติข้อมูลนี้ใช่หรือไม่?</p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+          <button class="btn btn-success" onclick="submitApproveKeyword()">ยืนยัน Approve</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="cleanupConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-warning-subtle">
+          <h5 class="modal-title">ยืนยัน Cleanup</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2">ระบบจะลบเฉพาะไฟล์ orphan ใน Cloudinary เท่านั้น</div>
+          <div class="text-muted small mb-3">จะไม่ลบ keyword, user หรือ log</div>
+          <div class="border rounded p-3 bg-light">
+            <div><strong>จำนวน orphan:</strong> <span id="cleanupConfirmCount">0</span> ไฟล์</div>
+            <div><strong>ขนาดรวม:</strong> <span id="cleanupConfirmSize">0 B</span></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+          <button class="btn btn-warning" onclick="runCleanup()">ยืนยัน Cleanup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("token")
+    let user = {}
+    let allKeywords = []
+    let isRealtimeLoading = false
+    let cleanupScanData = null
+    let detailKeywordModal
+    let rejectKeywordModal
+    let approveKeywordModal
+    let cleanupConfirmModal
+    let keywordFormModal
+
+    try {
+      user = JSON.parse(localStorage.getItem("user") || "{}")
+    } catch (error) {
+      user = {}
+    }
+
+    if (!token || !user || !["editor", "approver", "superadmin"].includes(user.role)) {
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+      window.location.replace("/login")
+    }
+
+    const isEditor = user.role === "editor"
+    const isAdmin = ["approver", "superadmin"].includes(user.role)
+
+    document.getElementById("userInfo").textContent = `${user.username || ""} (${user.role || ""})`
+
+    if (isEditor) {
+      document.getElementById("usersMenu").style.display = "none"
+      document.getElementById("logsMenu").style.display = "none"
+      document.getElementById("dashboardSubtitle").textContent = "เพิ่ม แก้ไข และดูข้อมูลของคุณได้จากหน้านี้"
+      document.getElementById("tableSubtitle").textContent = "แสดงเฉพาะข้อมูลของคุณ"
+
+      const cleanupSection = document.getElementById("cleanupSection")
+      if (cleanupSection) cleanupSection.style.display = "none"
+    }
+
+    function logout() {
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+      window.location.replace("/login")
+    }
+
+    function showToast(message, type = "success") {
+      const toastEl = document.getElementById("appToast")
+      const toastBody = document.getElementById("appToastBody")
+
+      toastBody.textContent = message
+
+      toastEl.classList.remove("text-bg-success", "text-bg-danger", "text-bg-warning", "text-bg-info")
+      toastEl.classList.add(
+        type === "error" ? "text-bg-danger" :
+        type === "warning" ? "text-bg-warning" :
+        type === "info" ? "text-bg-info" :
+        "text-bg-success"
+      )
+
+      bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 2500 }).show()
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+    }
+
+    function formatBytes(bytes = 0) {
+      if (!bytes) return "0 B"
+      const units = ["B", "KB", "MB", "GB"]
+      let value = bytes
+      let index = 0
+      while (value >= 1024 && index < units.length - 1) {
+        value /= 1024
+        index++
+      }
+      return `${value.toFixed(value >= 10 || index === 0 ? 0 : 1)} ${units[index]}`
+    }
+
+    function renderCleanupPreview(data) {
+      const totalFiles = document.getElementById("cleanupTotalFiles")
+      const usedFiles = document.getElementById("cleanupUsedFiles")
+      const orphanCount = document.getElementById("cleanupOrphanCount")
+      const orphanSize = document.getElementById("cleanupOrphanSize")
+      const box = document.getElementById("cleanupPreviewList")
+
+      if (!totalFiles || !usedFiles || !orphanCount || !orphanSize || !box) return
+
+      totalFiles.textContent = data?.totalCloudinaryFiles ?? "-"
+      usedFiles.textContent = data?.totalUsedInDb ?? "-"
+      orphanCount.textContent = data?.orphanCount ?? "-"
+      orphanSize.textContent = formatBytes(data?.orphanBytes || 0)
+
+      if (!data || !Array.isArray(data.orphans)) {
+        box.innerHTML = `<div class="text-muted">ยังไม่ได้สแกนข้อมูล</div>`
+        return
+      }
+
+      if (!data.orphans.length) {
+        box.innerHTML = `<div class="text-success">ไม่พบ orphan file ใน Cloudinary</div>`
+        return
+      }
+
+      box.innerHTML = data.orphans.map(item => `
+        <div class="cleanup-row">
+          <div><strong>${escapeHtml(item.public_id)}</strong></div>
+          <div class="text-muted small">type: ${escapeHtml(item.resource_type || "-")} | size: ${formatBytes(item.bytes || 0)}</div>
+        </div>
+      `).join("")
+    }
+
+    async function scanCleanup() {
+      if (!isAdmin) return
+
+      try {
+        const res = await fetch("/api/cleanup/orphan-media", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "สแกน cleanup ไม่สำเร็จ", "error")
+          return
+        }
+
+        cleanupScanData = data
+        renderCleanupPreview(data)
+      } catch (error) {
+        showToast("สแกน cleanup ไม่สำเร็จ", "error")
+      }
+    }
+
+    function openCleanupConfirm() {
+      if (!isAdmin) return
+
+      if (!cleanupScanData) {
+        showToast("กรุณาสแกนก่อน cleanup", "warning")
+        return
+      }
+
+      document.getElementById("cleanupConfirmCount").textContent = cleanupScanData.orphanCount || 0
+      document.getElementById("cleanupConfirmSize").textContent = formatBytes(cleanupScanData.orphanBytes || 0)
+      cleanupConfirmModal.show()
+    }
+
+    async function runCleanup() {
+      if (!isAdmin) return
+
+      try {
+        const res = await fetch("/api/cleanup/orphan-media", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "cleanup ไม่สำเร็จ", "error")
+          return
+        }
+
+        cleanupConfirmModal.hide()
+        showToast(`cleanup สำเร็จ ลบ ${data.deletedCount || 0} ไฟล์`, "success")
+        await scanCleanup()
+      } catch (error) {
+        showToast("cleanup ไม่สำเร็จ", "error")
+      }
+    }
+
+    function updateSummary(data) {
+      document.getElementById("totalCount").textContent = data.length
+      document.getElementById("pendingCount").textContent = data.filter(i => i.status === "pending").length
+      document.getElementById("approvedCount").textContent = data.filter(i => i.status === "approved").length
+      document.getElementById("rejectedCount").textContent = data.filter(i => i.status === "rejected").length
+    }
+
+    function renderMediaCell(item) {
+      if (item.mediaType === "image" && item.mediaUrl) {
+        return `<img src="${escapeHtml(item.mediaUrl)}" class="preview-img" alt="preview">`
+      }
+
+      if (item.mediaType === "video" && item.mediaUrl) {
+        return `<a href="${escapeHtml(item.mediaUrl)}" target="_blank">เปิดวิดีโอ</a>`
+      }
+
+      return "-"
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "-"
+      return new Date(value).toLocaleString()
+    }
+
+    function baseVisibleItems() {
+      if (isEditor) {
+        return allKeywords.filter(item => (item.createdBy || "") === (user.username || ""))
+      }
+      return allKeywords
+    }
+
+    function filterKeywords(items) {
+      const q = (document.getElementById("searchKeywordInput").value || "").trim().toLowerCase()
+      const status = document.getElementById("statusFilter").value
+
+      return items.filter(item => {
+        const matchStatus = !status || item.status === status
+        const haystack = [
+          item.keyword,
+          item.response,
+          item.createdBy,
+          item.approvedBy,
+          item.rejectedBy,
+          item.rejectReason
+        ].join(" ").toLowerCase()
+
+        const matchText = !q || haystack.includes(q)
+        return matchStatus && matchText
+      })
+    }
+
+    function updateFilterResultText(filteredCount, totalCount) {
+      document.getElementById("filterResultText").textContent = `แสดง ${filteredCount} จาก ${totalCount} รายการ`
+    }
+
+    function applyKeywordFilters() {
+      const visible = baseVisibleItems()
+      const filtered = filterKeywords(visible)
+      renderKeywordTable(filtered)
+      updateFilterResultText(filtered.length, visible.length)
+      updateSummary(baseVisibleItems())
+    }
+
+    function resetKeywordFilters() {
+      document.getElementById("searchKeywordInput").value = ""
+      document.getElementById("statusFilter").value = ""
+      applyKeywordFilters()
+    }
+
+    function renderKeywordTable(data) {
+      const tbody = document.getElementById("keywordTableBody")
+      tbody.innerHTML = ""
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-4">ไม่พบข้อมูลตามตัวกรองที่เลือก</td></tr>`
+        return
+      }
+
+      data.forEach(item => {
+        const statusClass =
+          item.status === "approved" ? "status-approved" :
+          item.status === "rejected" ? "status-rejected" :
+          "status-pending"
+
+        const safeItemJson = JSON.stringify(item).replace(/'/g, "\\'")
+
+        const editorAction = `
+          <div>
+            <button class="btn btn-outline-primary btn-sm" onclick='openDetailKeywordModal(${safeItemJson})'>รายละเอียด</button>
+            <button class="btn btn-primary btn-sm mt-1" onclick='editKeyword(${safeItemJson})'>แก้ไข</button>
+          </div>
+        `
+
+        const adminAction = `
+          <div>
+            <button class="btn btn-outline-primary btn-sm" onclick='openDetailKeywordModal(${safeItemJson})'>รายละเอียด</button>
+          </div>
+        `
+
+        const row = document.createElement("tr")
+        row.innerHTML = `
+          <td>
+            <div class="keyword-main">${escapeHtml(item.keyword)}</div>
+            <div class="keyword-sub">อัปเดตล่าสุด: ${formatDateTime(item.updatedAt)}</div>
+          </td>
+          <td><div class="response-preview">${escapeHtml(item.response)}</div></td>
+          <td>${renderMediaCell(item)}</td>
+          <td><span class="status-pill ${statusClass}">${escapeHtml(item.status)}</span></td>
+          <td>${escapeHtml(item.createdBy || "-")}</td>
+          <td>${escapeHtml(item.approvedBy || "-")}</td>
+          <td>${escapeHtml(item.rejectReason || "-")}</td>
+          <td>${isEditor ? editorAction : adminAction}</td>
+        `
+        tbody.appendChild(row)
+      })
+    }
+
+    async function loadKeywords(showRealtimeToast = false) {
+      try {
+        const res = await fetch("/api/keywords", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        if (res.status === 401) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          window.location.replace("/login")
+          return
+        }
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "โหลดข้อมูลไม่สำเร็จ", "error")
+          return
+        }
+
+        allKeywords = Array.isArray(data) ? data : []
+        applyKeywordFilters()
+
+        if (showRealtimeToast) {
+          showToast("ข้อมูลอัปเดตล่าสุดแล้ว", "info")
+        }
+      } catch (error) {
+        showToast("โหลดข้อมูลไม่สำเร็จ", "error")
+      }
+    }
+
+    async function uploadSelectedFile(file) {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (res.status === 401) {
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
+        window.location.replace("/login")
+        return null
+      }
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed")
+      }
+
+      return data
+    }
+
+    document.getElementById("fileInput").addEventListener("change", async function () {
+      const file = this.files[0]
+      if (!file) return
+
+      const preview = document.getElementById("uploadPreview")
+      preview.innerHTML = `<div class="form-muted">กำลังอัปโหลดไฟล์...</div>`
+
+      try {
+        const data = await uploadSelectedFile(file)
+        if (!data) return
+
+        document.getElementById("mediaUrl").value = data.mediaUrl || ""
+        document.getElementById("mediaPublicId").value = data.mediaPublicId || ""
+
+        if (data.mediaType === "image") {
+          document.getElementById("mediaType").value = "image"
+          preview.innerHTML = `<img src="${data.mediaUrl}" alt="preview">`
+          document.getElementById("previewImageUrl").value = ""
+        } else if (data.mediaType === "video") {
+          document.getElementById("mediaType").value = "video"
+          preview.innerHTML = `<video src="${data.mediaUrl}" controls></video>`
+          showToast("วิดีโออัปโหลดแล้ว ถ้าต้องการ preview ใน LINE แนะนำใส่ Preview Image URL เพิ่ม", "info")
+        } else {
+          preview.innerHTML = `<div class="form-muted">อัปโหลดสำเร็จ แต่ไม่ใช่ media type ที่รองรับ</div>`
+        }
+
+        showToast("อัปโหลดไฟล์สำเร็จ")
+      } catch (error) {
+        preview.innerHTML = ""
+        showToast(error.message || "อัปโหลดไฟล์ไม่สำเร็จ", "error")
+      }
+    })
+
+    document.getElementById("keywordForm").addEventListener("submit", async (e) => {
+      e.preventDefault()
+
+      const editId = document.getElementById("editId").value
+      const keyword = document.getElementById("keyword").value
+      const response = document.getElementById("response").value
+      const mediaType = document.getElementById("mediaType").value
+      const mediaUrl = document.getElementById("mediaUrl").value
+      const mediaPublicId = document.getElementById("mediaPublicId").value
+      const previewImageUrl = document.getElementById("previewImageUrl").value
+
+      const url = editId ? `/api/keywords/${editId}` : "/api/keywords"
+      const method = editId ? "PUT" : "POST"
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            keyword,
+            response,
+            mediaType,
+            mediaUrl,
+            mediaPublicId,
+            previewImageUrl
+          })
+        })
+
+        if (res.status === 401) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          window.location.replace("/login")
+          return
+        }
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "บันทึกข้อมูลไม่สำเร็จ", "error")
+          return
+        }
+
+        resetForm()
+        keywordFormModal.hide()
+        loadKeywords()
+        showToast("บันทึกข้อมูลสำเร็จ")
+      } catch (error) {
+        showToast("บันทึกข้อมูลไม่สำเร็จ", "error")
+      }
+    })
+
+    function editKeyword(item) {
+      if (isEditor && (item.createdBy || "") !== (user.username || "")) return
+
+      keywordFormModal.show()
+
+      document.getElementById("editId").value = item._id
+      document.getElementById("keyword").value = item.keyword || ""
+      document.getElementById("response").value = item.response || ""
+      document.getElementById("mediaType").value = item.mediaType || "none"
+      document.getElementById("mediaUrl").value = item.mediaUrl || ""
+      document.getElementById("mediaPublicId").value = item.mediaPublicId || ""
+      document.getElementById("previewImageUrl").value = item.previewImageUrl || ""
+
+      const preview = document.getElementById("uploadPreview")
+      preview.innerHTML = ""
+
+      if (item.mediaType === "image" && item.mediaUrl) {
+        preview.innerHTML = `<img src="${escapeHtml(item.mediaUrl)}" alt="preview">`
+      } else if (item.mediaType === "video" && item.mediaUrl) {
+        preview.innerHTML = `<video src="${escapeHtml(item.mediaUrl)}" controls></video>`
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("editId").value = ""
+      document.getElementById("keyword").value = ""
+      document.getElementById("response").value = ""
+      document.getElementById("mediaType").value = "none"
+      document.getElementById("mediaUrl").value = ""
+      document.getElementById("mediaPublicId").value = ""
+      document.getElementById("previewImageUrl").value = ""
+      document.getElementById("fileInput").value = ""
+      document.getElementById("uploadPreview").innerHTML = ""
+    }
+
+    async function deleteKeyword(id) {
+      if (!isAdmin) return
+
+      try {
+        const res = await fetch(`/api/keywords/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        if (res.status === 401) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          window.location.replace("/login")
+          return
+        }
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "ลบข้อมูลไม่สำเร็จ", "error")
+          return
+        }
+
+        loadKeywords()
+        showToast("ลบข้อมูลสำเร็จ")
+      } catch (error) {
+        showToast("ลบข้อมูลไม่สำเร็จ", "error")
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      detailKeywordModal = new bootstrap.Modal(document.getElementById("detailKeywordModal"))
+      rejectKeywordModal = new bootstrap.Modal(document.getElementById("rejectKeywordModal"))
+      approveKeywordModal = new bootstrap.Modal(document.getElementById("approveKeywordModal"))
+      cleanupConfirmModal = new bootstrap.Modal(document.getElementById("cleanupConfirmModal"))
+      keywordFormModal = new bootstrap.Modal(document.getElementById("keywordFormModal"))
+    })
+
+    function openDetailKeywordModal(item) {
+      if (isEditor && (item.createdBy || "") !== (user.username || "")) return
+
+      document.getElementById("detailItemId").value = item._id || ""
+      document.getElementById("detailKeyword").textContent = item.keyword || "-"
+      document.getElementById("detailStatus").textContent = item.status || "-"
+      document.getElementById("detailResponse").textContent = (item.response || "").trim() || "-"
+      document.getElementById("detailMediaType").textContent = item.mediaType || "-"
+      document.getElementById("detailCreatedBy").textContent = item.createdBy || "-"
+      document.getElementById("detailApprovedBy").textContent = item.approvedBy || "-"
+      document.getElementById("detailRejectedBy").textContent = item.rejectedBy || "-"
+      document.getElementById("detailRejectReason").textContent = item.rejectReason || "-"
+      document.getElementById("detailCreatedAt").textContent = formatDateTime(item.createdAt)
+      document.getElementById("detailUpdatedAt").textContent = formatDateTime(item.updatedAt)
+
+      document.getElementById("detailMediaUrl").innerHTML = item.mediaUrl
+        ? `<a href="${escapeHtml(item.mediaUrl)}" target="_blank">${escapeHtml(item.mediaUrl)}</a>`
+        : "-"
+
+      document.getElementById("detailPreviewImageUrl").innerHTML = item.previewImageUrl
+        ? `<a href="${escapeHtml(item.previewImageUrl)}" target="_blank">${escapeHtml(item.previewImageUrl)}</a>`
+        : "-"
+
+      const previewBox = document.getElementById("detailPreviewBox")
+
+      if (item.mediaType === "image" && item.mediaUrl) {
+        previewBox.innerHTML = `<img src="${escapeHtml(item.mediaUrl)}" class="detail-preview-img" alt="preview">`
+      } else if (item.mediaType === "video" && item.mediaUrl) {
+        previewBox.innerHTML = `<video src="${escapeHtml(item.mediaUrl)}" controls class="detail-preview-img"></video>`
+      } else {
+        previewBox.innerHTML = `<span class="text-muted">ไม่มี preview</span>`
+      }
+
+      const safeItemJson = JSON.stringify(item).replace(/'/g, "\\'")
+      const actionBox = document.getElementById("detailActionButtons")
+
+      if (isEditor) {
+        actionBox.innerHTML = `
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิด</button>
+          <button class="btn btn-primary" onclick='editKeywordFromDetail(${safeItemJson})'>แก้ไข</button>
+        `
+      } else {
+        actionBox.innerHTML = `
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิด</button>
+          <button class="btn btn-primary" onclick='editKeywordFromDetail(${safeItemJson})'>Edit</button>
+          <button class="btn btn-success" onclick="openApproveFromDetail('${item._id}')">Approve</button>
+          <button class="btn btn-danger" onclick="openRejectFromDetail('${item._id}')">Reject</button>
+          <button class="btn btn-outline-secondary" onclick="deleteFromDetail('${item._id}')">Delete</button>
+        `
+      }
+
+      detailKeywordModal.show()
+    }
+
+    function editKeywordFromDetail(item) {
+      detailKeywordModal.hide()
+      editKeyword(item)
+    }
+
+    function openApproveKeywordModal(id) {
+      if (!isAdmin) return
+      document.getElementById("approveItemId").value = id
+      approveKeywordModal.show()
+    }
+
+    function openApproveFromDetail(id) {
+      if (!isAdmin) return
+      detailKeywordModal.hide()
+      openApproveKeywordModal(id)
+    }
+
+    async function submitApproveKeyword() {
+      if (!isAdmin) return
+      const id = document.getElementById("approveItemId").value
+
+      try {
+        const res = await fetch(`/api/keywords/${id}/approve`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        if (res.status === 401) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          window.location.replace("/login")
+          return
+        }
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          showToast(data.error || "อนุมัติข้อมูลไม่สำเร็จ", "error")
+          return
+        }
+
+        approveKeywordModal.hide()
+        loadKeywords()
+        showToast("อนุมัติข้อมูลสำเร็จ")
+      } catch (error) {
+        showToast("อนุมัติข้อมูลไม่สำเร็จ", "error")
+      }
+    }
+
+    function openRejectKeywordModal(id) {
+      if (!isAdmin) return
+      document.getElementById("rejectItemId").value = id
+      document.getElementById("rejectReasonInput").value = ""
+      document.getElementById("rejectError").classList.add("d-none")
+      rejectKeywordModal.show()
+    }
+
+    function openRejectFromDetail(id) {
+      if (!isAdmin) return
+      detailKeywordModal.hide()
+      openRejectKeywordModal(id)
+    }
+
+    async function submitRejectKeyword() {
+      if (!isAdmin) return
+
+      const id = document.getElementById("rejectItemId").value
+      const reason = document.getElementById("rejectReasonInput").value.trim()
+      const errorBox = document.getElementById("rejectError")
+
+      errorBox.classList.add("d-none")
+      errorBox.textContent = ""
+
+      if (!reason) {
+        errorBox.classList.remove("d-none")
+        errorBox.textContent = "กรุณากรอกเหตุผลที่ reject"
+        return
+      }
+
+      try {
+        const res = await fetch(`/api/keywords/${id}/reject`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ reason })
+        })
+
+        if (res.status === 401) {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          window.location.replace("/login")
+          return
+        }
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          errorBox.classList.remove("d-none")
+          errorBox.textContent = data.error || "Reject failed"
+          return
+        }
+
+        rejectKeywordModal.hide()
+        loadKeywords()
+        showToast("Reject ข้อมูลสำเร็จ", "warning")
+      } catch (error) {
+        errorBox.classList.remove("d-none")
+        errorBox.textContent = "Reject ไม่สำเร็จ"
+      }
+    }
+
+    async function deleteFromDetail(id) {
+      if (!isAdmin) return
+      await deleteKeyword(id)
+      detailKeywordModal.hide()
+    }
+  </script>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io()
+
+    socket.on("connect", () => {
+      const syncStatus = document.getElementById("syncStatus")
+      syncStatus.innerHTML = `<span class="sync-dot"></span> Realtime Sync`
+    })
+
+    socket.on("disconnect", () => {
+      const syncStatus = document.getElementById("syncStatus")
+      syncStatus.innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
+    })
+
+    socket.on("dashboard:refresh", async () => {
+      if (isRealtimeLoading) return
+      isRealtimeLoading = true
+
+      try {
+        await loadKeywords(true)
+        if (isAdmin) {
+          await scanCleanup()
+        }
+      } finally {
+        setTimeout(() => {
+          isRealtimeLoading = false
+        }, 600)
+      }
+    })
+
+    loadKeywords()
+    if (isAdmin) {
+      scanCleanup()
+    }
+
+        </script>
+      <script src="/js/sidebarPolicy.js"></script>
+      <script>
+        initSidebarPolicy("dashboard")
+      </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

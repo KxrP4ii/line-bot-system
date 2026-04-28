@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Users</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --line:#e7ebf3;
+      --text:#172033;
+      --muted:#6b7280;
+      --shadow:0 12px 32px rgba(15,23,42,.06);
+      --radius:20px;
+      --sidebar:#0f172a;
+      --sidebar-text:#cbd5e1;
+      --sidebar-active:#ffffff;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Thai",sans-serif;
+    }
+
+    .layout{ min-height:100vh; }
+
+    .sidebar{
+      background:var(--sidebar);
+      color:var(--sidebar-text);
+      min-height:100vh;
+      padding:24px 16px;
+      position:sticky;
+      top:0;
+    }
+
+    .brand{
+      color:#fff;
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:24px;
+    }
+
+    .nav-link-custom{
+      display:block;
+      text-decoration:none;
+      color:var(--sidebar-text);
+      padding:12px 14px;
+      border-radius:12px;
+      margin-bottom:8px;
+      transition:.15s ease;
+      font-weight:500;
+    }
+
+    .nav-link-custom.active,
+    .nav-link-custom:hover{
+      background:rgba(255,255,255,.08);
+      color:var(--sidebar-active);
+    }
+
+    .main{ padding:26px; }
+
+    .topbar,
+    .card-box{
+      background:var(--card);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+    }
+
+    .topbar{
+      padding:20px 22px;
+      margin-bottom:22px;
+    }
+
+    .page-title{
+      font-size:28px;
+      font-weight:800;
+      margin:0;
+    }
+
+    .page-subtitle{
+      color:var(--muted);
+      font-size:14px;
+      margin-top:6px;
+    }
+
+    .toolbar-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .toolbar-right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .sync-badge{
+      font-size:12px;
+      color:#18794E;
+      background:#e8f7ec;
+      border:1px solid #b7e4c7;
+      padding:5px 10px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .sync-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#16a34a;
+      display:inline-block;
+    }
+
+    .card-box{
+      padding:18px;
+      margin-bottom:22px;
+    }
+
+    .section-title{
+      font-size:17px;
+      font-weight:800;
+      margin:0 0 4px 0;
+    }
+
+    .section-subtitle{
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:14px;
+    }
+
+    .table-wrap{
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:auto;
+      max-height:620px;
+      background:#fff;
+    }
+
+    .table{
+      margin-bottom:0;
+      vertical-align:middle;
+    }
+
+    .table thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#f8fafc;
+      white-space:nowrap;
+      font-size:13px;
+      color:#4b5563;
+      border-bottom:1px solid var(--line);
+    }
+
+    .role-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:100px;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .role-editor{ background:#eef3ff; color:#1f3a8a; }
+    .role-approver{ background:#eef9f1; color:#0f7a38; }
+    .role-superadmin{ background:#fff1f1; color:#b42318; }
+
+    .line-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:88px;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .line-linked{
+      background:#e8f7ec;
+      color:#18794E;
+      border:1px solid #b7e4c7;
+    }
+
+    .line-unlinked{
+      background:#f3f4f6;
+      color:#4b5563;
+      border:1px solid #d1d5db;
+    }
+
+    .groups-box{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      max-width:360px;
+      max-height:140px;
+      overflow:auto;
+      padding:10px;
+      background:#f8fafc;
+      border-radius:16px;
+      border:1px solid rgba(59,130,246,.16);
+    }
+
+    .group-pill{
+      display:inline-flex;
+      align-items:center;
+      max-width:100%;
+      padding:5px 10px;
+      border-radius:999px;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      color:#1e40af;
+      font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .group-pill:hover{
+      background:#dbeafe;
+    }
+
+    .group-checklist{
+      width:100%;
+      max-width:100%;
+      max-height:300px;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      background:#fff;
+    }
+
+    .group-check-item{
+      padding:9px 4px;
+      border-bottom:1px solid #eef2f7;
+    }
+
+    .group-check-item:last-child{
+      border-bottom:none;
+    }
+
+    .group-name{
+      font-weight:700;
+      color:#111827;
+    }
+
+    .group-id{
+      font-size:12px;
+      color:var(--muted);
+      word-break:break-all;
+    }
+
+    .modal-content{
+      border:none;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 20px 50px rgba(15,23,42,.16);
+    }
+
+    .modal-header{
+      border-bottom:1px solid var(--line);
+      padding:16px 18px;
+    }
+
+    .modal-body{
+      padding:18px;
+    }
+
+    .modal-footer{
+      border-top:1px solid var(--line);
+      padding:14px 18px;
+    }
+
+    @media (max-width:991px){
+      .sidebar{ min-height:auto; position:relative; }
+      .main{ padding:18px; }
+      .page-title{ font-size:24px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid layout">
+    <div class="row">
+      <div class="col-lg-2 p-0">
+        <aside class="sidebar">
+          <div class="brand">Workflow System</div>
+
+          <a href="/dashboard" class="nav-link-custom" id="dashboardMenu">Dashboard</a>
+          <a href="/analytics" class="nav-link-custom" id="analyticsMenu">Analytics</a>
+          <a href="/groups" class="nav-link-custom" id="groupsMenu">Groups</a>
+          <a href="/users" class="nav-link-custom" id="usersMenu">Users</a>
+          <a href="/logs" class="nav-link-custom" id="logsMenu">Logs</a>
+          <a href="/spam" class="nav-link-custom" id="spamMenu">Spam Monitor</a>
+          <a href="/cleanup" class="nav-link-custom" id="cleanupMenu">Storage Cleanup</a>
+          <a href="/support" id="supportMenu" class="nav-link-custom">Support</a>
+        </aside>
+      </div>
+
+      <div class="col-lg-10">
+        <main class="main">
+          <div class="topbar">
+            <div class="toolbar-row">
+              <div>
+                <h1 class="page-title">Users</h1>
+                <div class="page-subtitle">จัดการผู้ใช้งาน สิทธิ์ LINE และกลุ่มที่อนุญาตให้ใช้บอท</div>
+              </div>
+
+              <div class="toolbar-right">
+                <span class="sync-badge" id="syncStatus">
+                  <span class="sync-dot"></span>
+                  Realtime Sync
+                </span>
+                <span id="userInfo" class="badge text-bg-dark"></span>
+                <button id="createUserBtn" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#userModal">
+                  + เพิ่มผู้ใช้
+                </button>
+                <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-box">
+            <div class="section-title">รายการผู้ใช้งาน</div>
+            <div class="section-subtitle" id="pageSubRole">สำหรับ approver และ superadmin</div>
+
+            <div class="toolbar-row mb-3">
+              <input
+                type="text"
+                id="searchUserInput"
+                class="form-control"
+                placeholder="ค้นหา username / role / group"
+                oninput="applyUserFilter()"
+                style="min-width:280px"
+              />
+              <button class="btn btn-outline-secondary btn-sm" onclick="loadAll()">Refresh</button>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>LINE</th>
+                    <th>LINE User ID</th>
+                    <th>Allowed Groups</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="userTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title mb-0">เพิ่ม / แก้ไขผู้ใช้</h5>
+            <div class="text-muted small mt-1">Approver สามารถกำหนด Allowed Groups ให้ editor / approver ได้</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="userForm">
+            <input type="hidden" id="editUserId" />
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" required />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" placeholder="เว้นว่างถ้าไม่เปลี่ยนรหัสผ่าน" />
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Role</label>
+                <select id="role" class="form-select" required></select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">LINE User ID</label>
+                <input type="text" id="lineUserId" class="form-control" />
+              </div>
+
+              <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                  <label class="form-label mb-0">Allowed Groups</label>
+
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="selectAllGroups()">เลือกกลุ่ม active ทั้งหมด</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearSelectedGroups()">ล้างกลุ่ม</button>
+                  </div>
+                </div>
+
+                <div id="groupChecklist" class="group-checklist">
+                  <div class="text-muted">กำลังโหลดรายการกลุ่ม...</div>
+                </div>
+
+                <div class="form-text">
+                  เลือกกลุ่มที่ user คนนี้มีสิทธิใช้คำสั่งบอทได้ ถ้าไม่เลือกกลุ่ม บอทจะเงียบสำหรับ user นี้ในทุกกลุ่ม
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" type="button" onclick="resetUserForm()">ล้างฟอร์ม</button>
+          <button class="btn btn-primary" type="submit" form="userForm">บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/sidebarPolicy.js"></script>
+
+  <script>
+    const token = localStorage.getItem("token")
+    let user = {}
+    let allUsers = []
+    let allGroups = []
+    let userModal
+    let isRealtimeLoading = false
+
+    try {
+      user = JSON.parse(localStorage.getItem("user") || "{}")
+    } catch (error) {
+      user = {}
+    }
+
+    if (!token || !user || !["approver", "superadmin"].includes(user.role)) {
+      localStorage.clear()
+      window.location.replace("/login")
+    }
+
+    const isSuper = user.role === "superadmin"
+    const isApprover = user.role === "approver"
+
+    initSidebarPolicy("users")
+
+    document.getElementById("pageSubRole").textContent = isSuper
+      ? "Superadmin สามารถสร้าง ลบ และจัดการผู้ใช้ได้ทั้งหมด"
+      : "Approver สามารถแก้ไข user ทั่วไปและกำหนด Allowed Groups ได้"
+
+    if (!isSuper) {
+      document.getElementById("createUserBtn").style.display = "none"
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+    }
+
+    function roleBadge(role) {
+      if (role === "superadmin") return `<span class="role-pill role-superadmin">superadmin</span>`
+      if (role === "approver") return `<span class="role-pill role-approver">approver</span>`
+      return `<span class="role-pill role-editor">editor</span>`
+    }
+
+    function lineBadge(lineUserId) {
+      return lineUserId
+        ? `<span class="line-pill line-linked">เชื่อมแล้ว</span>`
+        : `<span class="line-pill line-unlinked">ยังไม่เชื่อม</span>`
+    }
+
+    function getGroupNameById(groupId) {
+      const group = allGroups.find(g => g.groupId === groupId)
+      return group ? (group.groupName || group.groupId) : groupId
+    }
+
+    function groupsText(groups) {
+      if (!Array.isArray(groups) || !groups.length) return "-"
+
+      return groups.map(groupId => {
+        const group = allGroups.find(g => g.groupId === groupId)
+        const label = group ? group.groupName || group.groupId : groupId
+        const title = group ? `${group.groupName || group.groupId} (${group.groupId})` : groupId
+
+        return `<span class="group-pill" title="${escapeHtml(title)}">${escapeHtml(label)}</span>`
+      }).join("")
+    }
+
+    function getSelectedGroups() {
+      return [...document.querySelectorAll(".group-check-input:checked")].map(el => el.value)
+    }
+
+    function setRoleOptions(targetUser = null) {
+      const roleSelect = document.getElementById("role")
+
+      if (isApprover) {
+        roleSelect.innerHTML = `
+          <option value="editor">editor</option>
+          <option value="approver">approver</option>
+        `
+      } else {
+        roleSelect.innerHTML = `
+          <option value="editor">editor</option>
+          <option value="approver">approver</option>
+          <option value="superadmin">superadmin</option>
+        `
+      }
+
+      roleSelect.value = targetUser?.role || "editor"
+    }
+
+    function renderGroupChecklist(selected = []) {
+      const box = document.getElementById("groupChecklist")
+
+      if (!allGroups.length) {
+        box.innerHTML = `<div class="text-muted">ยังไม่มีกลุ่มในระบบ กรุณาให้ bot เจอข้อความในกลุ่มก่อน หรือไปเพิ่มเองที่หน้า Groups</div>`
+        return
+      }
+
+      box.innerHTML = allGroups.map(group => {
+        const checked = selected.includes(group.groupId) ? "checked" : ""
+
+        return `
+          <div class="group-check-item">
+            <div class="form-check">
+              <input
+                class="form-check-input group-check-input"
+                type="checkbox"
+                value="${escapeHtml(group.groupId)}"
+                id="group_${escapeHtml(group._id)}"
+                ${checked}
+              />
+              <label class="form-check-label w-100" for="group_${escapeHtml(group._id)}">
+                <div class="group-name">
+                  ${escapeHtml(group.groupName || "-")}
+                  ${group.isActive ? `<span class="badge text-bg-success ms-2">active</span>` : `<span class="badge text-bg-danger ms-2">inactive</span>`}
+                </div>
+                <div class="group-id">${escapeHtml(group.groupId)}</div>
+              </label>
+            </div>
+          </div>
+        `
+      }).join("")
+    }
+
+    function selectAllGroups() {
+      document.querySelectorAll(".group-check-input").forEach(input => {
+        const group = allGroups.find(g => g.groupId === input.value)
+        if (group && group.isActive) {
+          input.checked = true
+        }
+      })
+    }
+
+    function clearSelectedGroups() {
+      document.querySelectorAll(".group-check-input").forEach(input => {
+        input.checked = false
+      })
+    }
+
+    function applyUserFilter() {
+      const q = (document.getElementById("searchUserInput").value || "").trim().toLowerCase()
+
+      const filtered = allUsers.filter(item => {
+        const allowedGroupNames = Array.isArray(item.allowedGroups)
+          ? item.allowedGroups.map(id => getGroupNameById(id)).join(" ")
+          : ""
+
+        const text = [
+          item.username || "",
+          item.role || "",
+          item.lineUserId || "",
+          Array.isArray(item.allowedGroups) ? item.allowedGroups.join(" ") : "",
+          allowedGroupNames
+        ].join(" ").toLowerCase()
+
+        return !q || text.includes(q)
+      })
+
+      renderUsers(filtered)
+    }
+
+    function renderUsers(data) {
+      const tbody = document.getElementById("userTableBody")
+      tbody.innerHTML = ""
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">ไม่พบผู้ใช้งาน</td></tr>`
+        return
+      }
+
+      data.forEach(item => {
+        const isTargetSuper = item.role === "superadmin"
+        const isSelf = String(item.id || item._id) === String(user.id || user._id)
+
+        const disableEdit = (isApprover && isTargetSuper) || isSelf
+        const disableUnlink = (!item.lineUserId) || (isApprover && isTargetSuper) || isSelf
+        const showDelete = isSuper && !isTargetSuper && !isSelf
+
+        const safeItemJson = JSON.stringify(item).replace(/'/g, "\\'")
+
+        const row = document.createElement("tr")
+        row.innerHTML = `
+          <td>${escapeHtml(item.username || "-")}</td>
+          <td>${roleBadge(item.role)}</td>
+          <td>${lineBadge(item.lineUserId)}</td>
+          <td>${escapeHtml(item.lineUserId || "-")}</td>
+          <td><div class="groups-box">${groupsText(item.allowedGroups)}</div></td>
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+              <button
+                class="btn btn-outline-primary btn-sm"
+                onclick='editUser(${safeItemJson})'
+                ${disableEdit ? "disabled" : ""}
+              >
+                แก้ไข
+              </button>
+
+              <button
+                class="btn btn-outline-warning btn-sm"
+                onclick="unlinkLine('${item._id}')"
+                ${disableUnlink ? "disabled" : ""}
+              >
+                ยกเลิก LINE
+              </button>
+
+              ${showDelete ? `<button class="btn btn-outline-danger btn-sm" onclick="deleteUser('${item._id}')">ลบ</button>` : ""}
+            </div>
+          </td>
+        `
+        tbody.appendChild(row)
+      })
+    }
+
+    async function loadGroups() {
+      try {
+        const res = await fetch("/api/groups", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "โหลดกลุ่มไม่สำเร็จ")
+          return
+        }
+
+        allGroups = Array.isArray(data) ? data : []
+        renderGroupChecklist()
+      } catch (error) {
+        alert("โหลดกลุ่มไม่สำเร็จ")
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await fetch("/api/users", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "โหลดผู้ใช้ไม่สำเร็จ")
+          return
+        }
+
+        allUsers = Array.isArray(data) ? data : []
+        applyUserFilter()
+      } catch (error) {
+        alert("โหลดผู้ใช้ไม่สำเร็จ")
+      }
+    }
+
+    async function loadAll() {
+      await loadGroups()
+      await loadUsers()
+    }
+
+    function editUser(item) {
+      document.getElementById("editUserId").value = item._id || ""
+      document.getElementById("username").value = item.username || ""
+      document.getElementById("password").value = ""
+      document.getElementById("lineUserId").value = item.lineUserId || ""
+
+      setRoleOptions(item)
+      renderGroupChecklist(Array.isArray(item.allowedGroups) ? item.allowedGroups : [])
+
+      document.getElementById("username").disabled = true
+      userModal.show()
+    }
+
+    function resetUserForm() {
+      document.getElementById("editUserId").value = ""
+      document.getElementById("username").value = ""
+      document.getElementById("password").value = ""
+      document.getElementById("lineUserId").value = ""
+      document.getElementById("username").disabled = false
+
+      setRoleOptions()
+      renderGroupChecklist([])
+    }
+
+    document.getElementById("userForm").addEventListener("submit", async (e) => {
+      e.preventDefault()
+
+      const editUserId = document.getElementById("editUserId").value
+      const username = document.getElementById("username").value.trim()
+      const password = document.getElementById("password").value
+      const role = document.getElementById("role").value
+      const lineUserId = document.getElementById("lineUserId").value.trim()
+      const allowedGroups = getSelectedGroups()
+
+      const isEdit = Boolean(editUserId)
+      const url = isEdit ? `/api/users/${editUserId}` : "/api/users"
+      const method = isEdit ? "PUT" : "POST"
+
+      const payload = {
+        username,
+        role,
+        lineUserId,
+        allowedGroups
+      }
+
+      if (password.trim()) {
+        payload.password = password
+      }
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "บันทึกผู้ใช้ไม่สำเร็จ")
+          return
+        }
+
+        resetUserForm()
+        userModal.hide()
+        await loadAll()
+      } catch (error) {
+        alert("บันทึกผู้ใช้ไม่สำเร็จ")
+      }
+    })
+
+    async function unlinkLine(id) {
+      if (!confirm("ยืนยันยกเลิกการเชื่อม LINE ?")) return
+
+      try {
+        const res = await fetch(`/api/users/unlink-line/${id}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "ยกเลิกไม่สำเร็จ")
+          return
+        }
+
+        alert("ยกเลิก LINE สำเร็จ")
+        await loadAll()
+      } catch (error) {
+        alert("เกิดข้อผิดพลาด")
+      }
+    }
+
+    async function deleteUser(id) {
+      if (!confirm("ยืนยันการลบผู้ใช้นี้?")) return
+
+      try {
+        const res = await fetch(`/api/users/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          alert(data.error || "ลบผู้ใช้ไม่สำเร็จ")
+          return
+        }
+
+        await loadAll()
+      } catch (error) {
+        alert("ลบผู้ใช้ไม่สำเร็จ")
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      userModal = new bootstrap.Modal(document.getElementById("userModal"))
+      setRoleOptions()
+      await loadAll()
+    })
+
+    const socket = io()
+
+    socket.on("connect", () => {
+      document.getElementById("syncStatus").innerHTML = `<span class="sync-dot"></span> Realtime Sync`
+    })
+
+    socket.on("disconnect", () => {
+      document.getElementById("syncStatus").innerHTML = `<span class="sync-dot" style="background:#dc2626;"></span> Sync Disconnected`
+    })
+
+    socket.on("dashboard:refresh", async () => {
+      if (isRealtimeLoading) return
+
+      isRealtimeLoading = true
+
+      try {
+        await loadAll()
+      } finally {
+        setTimeout(() => {
+          isRealtimeLoading = false
+        }, 600)
+      }
+    })
+  </script>
+</body>
+</html>
